@@ -1,0 +1,10 @@
+{
+  "permission": {
+    "read": {
+      "C:/Users/Faiz/Downloads/Faiz-projects/clipforge/.opencode/get-shit-done/*": "allow"
+    },
+    "external_directory": {
+      "C:/Users/Faiz/Downloads/Faiz-projects/clipforge/.opencode/get-shit-done/*": "allow"
+    }
+  }
+}

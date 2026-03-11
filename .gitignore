@@ -1,0 +1,47 @@
+# ============================================
+# ClipForge AI — .gitignore
+# ============================================
+
+# ----- Python -----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+venv/
+.venv/
+env/
+.env
+*.whl
+
+# ----- Node.js -----
+node_modules/
+.next/
+out/
+.vercel
+
+# ----- IDE -----
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ----- OS -----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ----- Testing -----
+.coverage
+htmlcov/
+.pytest_cache/
+
+# ----- Misc -----
+*.log
+.env.local
+.env.*.local
