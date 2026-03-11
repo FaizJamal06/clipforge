@@ -4,13 +4,15 @@ ClipForge AI — Clip Discovery Agent
 Uses LLM to analyze transcript chunks and identify the most viral
 40-60 second segments. Each selected clip must be verbatim, continuous,
 and contain a strong hook + payoff structure.
-
-This is a SCAFFOLD — placeholder logic only.
-Full implementation will be added in the execution phase.
 """
 
+import json
+import logging
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field
+
+logger = logging.getLogger(__name__)
 
 
 # ----- Structured Output Schema ----- #
@@ -43,56 +45,61 @@ Your task is to analyze a podcast transcript and identify the TOP 3 most viral 4
 RULES:
 1. Each clip MUST be an EXACT verbatim copy from the transcript — do NOT paraphrase or modify any words.
 2. Each clip MUST be a continuous segment — do NOT splice together non-adjacent parts.
-3. Each clip MUST be 40-60 seconds in duration.
+3. Each clip MUST be 40-60 seconds in duration (estimate based on ~150 words per minute speaking rate).
 4. Each clip MUST contain a strong HOOK (attention-grabbing opening) and a PAYOFF (satisfying conclusion).
+5. Use the timestamps provided in [MM:SS] format to estimate start_time and end_time in seconds.
 
-VIRAL CRITERIA:
+VIRAL CRITERIA (ranked by importance):
 - Emotional peaks (surprise, humor, outrage, awe)
 - Curiosity gaps (statements that make viewers need to hear more)
 - Contrarian or controversial takes
 - Personal stories with universal resonance
 - "Quotable" moments that stand alone without context
+- Dramatic revelations or plot twists in stories
 
-Rank clips by virality potential. Explain your reasoning for each selection.""",
+Rank clips by virality potential. Explain your reasoning for each selection.
+The clip_text must be COPIED EXACTLY from the transcript text — character for character.""",
     ),
     (
         "human",
-        """Analyze the following podcast transcript and identify the top 3 viral clips.
+        """Analyze the following podcast transcript and identify the top 3 viral clips (40-60 seconds each).
 
 <transcript>
 {transcript_chunks}
 </transcript>
 
-Return the clips as structured output with verbatim text, timestamps, duration, and virality reasoning.""",
+Return exactly 3 clips as structured output with verbatim text, timestamps, duration, and virality reasoning.""",
     ),
 ])
 
 
 # ----- Agent Logic ----- #
 
-async def run(transcript_chunks: list[str], llm=None) -> ClipDiscoveryOutput:
+async def run(transcript_chunks: list[str], llm: ChatOpenAI) -> ClipDiscoveryOutput:
     """Execute the clip discovery agent.
+
+    Invokes the LLM with the discovery prompt and forces structured output.
 
     Args:
         transcript_chunks: Processed transcript chunks to analyze.
-        llm: LangChain LLM instance (injected via dependency).
+        llm: LangChain ChatOpenAI instance.
 
     Returns:
         ClipDiscoveryOutput with top 3 viral clip candidates.
 
-    TODO: Implement actual LLM call with structured output.
+    Raises:
+        Exception: If LLM call fails after retries.
     """
-    # Placeholder response
-    return ClipDiscoveryOutput(
-        clips=[
-            DiscoveredClip(
-                clip_text="[Placeholder] This is where the verbatim clip text would appear...",
-                start_time=120.0,
-                end_time=165.0,
-                duration=45.0,
-                virality_reasoning="Placeholder — will be filled by LLM analysis.",
-                hook="Placeholder hook",
-                payoff="Placeholder payoff",
-            )
-        ]
-    )
+    # Join all chunks with separators for context
+    combined_transcript = "\n\n---\n\n".join(transcript_chunks)
+
+    # Build the chain with structured output
+    structured_llm = llm.with_structured_output(ClipDiscoveryOutput)
+    chain = CLIP_DISCOVERY_PROMPT | structured_llm
+
+    logger.info(f"Running clip discovery on {len(transcript_chunks)} chunks...")
+
+    result = await chain.ainvoke({"transcript_chunks": combined_transcript})
+
+    logger.info(f"Discovered {len(result.clips)} candidate clips")
+    return result

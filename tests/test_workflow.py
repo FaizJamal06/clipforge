@@ -1,9 +1,10 @@
 """
-ClipForge AI — Tests for LangGraph Workflow
+ClipForge AI — Tests for LangGraph Workflow Nodes
 """
 
 import sys
 import os
+import pytest
 
 # Add backend to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "backend"))
@@ -23,7 +24,7 @@ from app.graph.state import ClipForgeState
 def _make_initial_state() -> ClipForgeState:
     """Create a minimal initial state for testing."""
     return {
-        "youtube_url": "https://www.youtube.com/watch?v=test123",
+        "youtube_url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
         "video_id": "",
         "transcript": [],
         "transcript_chunks": [],
@@ -37,74 +38,103 @@ def _make_initial_state() -> ClipForgeState:
     }
 
 
-def test_input_handler_node():
-    """Test that input_handler returns expected state updates."""
+def test_input_handler_valid_url():
+    """Test input_handler with a valid YouTube URL."""
     state = _make_initial_state()
     result = input_handler(state)
 
-    assert "video_id" in result
-    assert "status" in result
+    assert result["video_id"] == "dQw4w9WgXcQ"
     assert result["status"] == "input_validated"
+    assert result["errors"] == []
 
 
-def test_transcript_retrieval_node():
-    """Test that transcript_retrieval returns transcript data."""
+def test_input_handler_invalid_url():
+    """Test input_handler with an invalid URL."""
     state = _make_initial_state()
-    state["video_id"] = "test123"
+    state["youtube_url"] = "https://example.com"
+    result = input_handler(state)
+
+    assert result["status"] == "failed"
+    assert len(result["errors"]) > 0
+
+
+def test_transcript_retrieval_no_video_id():
+    """Test transcript_retrieval when video ID is missing."""
+    state = _make_initial_state()
+    state["video_id"] = ""
     result = transcript_retrieval(state)
 
-    assert "transcript" in result
-    assert isinstance(result["transcript"], list)
-    assert result["status"] == "transcript_retrieved"
+    assert result["transcript"] == []
+    assert result["status"] == "failed"
 
 
-def test_transcript_processing_node():
-    """Test that transcript_processing returns chunks."""
+def test_transcript_processing_with_data():
+    """Test transcript_processing with real segment data."""
     state = _make_initial_state()
-    state["transcript"] = [{"text": "Hello world", "start": 0.0, "duration": 5.0}]
+    state["transcript"] = [
+        {"text": "Hello world", "start": 0.0, "duration": 5.0},
+        {"text": "This is great", "start": 5.0, "duration": 5.0},
+    ]
     result = transcript_processing(state)
 
     assert "transcript_chunks" in result
     assert isinstance(result["transcript_chunks"], list)
+    assert len(result["transcript_chunks"]) > 0
     assert result["status"] == "transcript_processed"
 
 
-def test_clip_discovery_node():
-    """Test that clip_discovery returns candidate clips."""
+def test_transcript_processing_empty():
+    """Test transcript_processing with no transcript."""
     state = _make_initial_state()
-    state["transcript_chunks"] = ["Test chunk content"]
-    result = clip_discovery(state)
+    result = transcript_processing(state)
 
-    assert "candidate_clips" in result
-    assert isinstance(result["candidate_clips"], list)
-    assert result["status"] == "clips_discovered"
+    assert result["transcript_chunks"] == []
+    assert result["status"] == "failed"
 
 
-def test_clip_validation_node():
-    """Test that clip_validation returns validation results."""
+@pytest.mark.asyncio
+async def test_clip_discovery_no_chunks():
+    """Test clip_discovery when no chunks are available."""
     state = _make_initial_state()
-    state["candidate_clips"] = [{"clip_text": "test", "start_time": 0, "end_time": 45}]
-    result = clip_validation(state)
+    result = await clip_discovery(state)
 
-    assert "validated_clips" in result
-    assert "failed_clips" in result
+    assert result["candidate_clips"] == []
+    assert result["status"] == "failed"
+
+
+@pytest.mark.asyncio
+async def test_clip_validation_empty():
+    """Test clip_validation with no clips."""
+    state = _make_initial_state()
+    result = await clip_validation(state)
+
+    assert result["validated_clips"] == []
     assert result["status"] == "clips_validated"
 
 
-def test_editing_plan_node():
-    """Test that editing_plan returns editing plans."""
+@pytest.mark.asyncio
+async def test_editing_plan_empty():
+    """Test editing_plan with no validated clips."""
     state = _make_initial_state()
-    state["validated_clips"] = [{"clip_text": "test", "start_time": 0, "end_time": 45}]
-    result = editing_plan(state)
+    result = await editing_plan(state)
 
-    assert "editing_plans" in result
-    assert isinstance(result["editing_plans"], list)
+    assert result["editing_plans"] == []
     assert result["status"] == "editing_plans_generated"
 
 
-def test_output_formatter_node():
-    """Test that output_formatter sets completed status."""
+def test_output_formatter_no_clips():
+    """Test output_formatter with no validated clips."""
     state = _make_initial_state()
     result = output_formatter(state)
+    assert result["status"] == "completed_no_clips"
 
+
+def test_output_formatter_with_clips():
+    """Test output_formatter with validated clips."""
+    state = _make_initial_state()
+    state["validated_clips"] = [
+        {"clip_text": "Test clip", "start_time": 0, "end_time": 45}
+    ]
+    state["editing_plans"] = [{"clip_index": 0, "title": "Test"}]
+    result = output_formatter(state)
     assert result["status"] == "completed"
