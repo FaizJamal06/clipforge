@@ -39,3 +39,4 @@ class ClipForgeState(TypedDict):
     retry_count: int
     errors: list[str]
     status: str
+    chunk_offset: int

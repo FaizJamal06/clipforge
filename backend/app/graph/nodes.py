@@ -111,12 +111,18 @@ def transcript_processing(state: ClipForgeState) -> dict:
         }
 
 
+# In-memory cache for discovered clips to avoid 402 Token Limits on "Load More"
+# Maps video_id -> list of serialized candidate clips
+DISCOVERY_CACHE: dict[str, list[dict]] = {}
+
 async def clip_discovery(state: ClipForgeState) -> dict:
     """Node 4 — Clip Discovery Agent
 
     Analyzes transcript chunks using LLM to identify viral clips.
     """
     transcript_chunks = state.get("transcript_chunks", [])
+    chunk_offset = state.get("chunk_offset", 0)
+    video_id = state.get("video_id", "")
 
     if not transcript_chunks:
         return {
@@ -125,17 +131,58 @@ async def clip_discovery(state: ClipForgeState) -> dict:
             "errors": state.get("errors", []) + ["No transcript chunks available — skipping discovery."],
         }
 
+    # 1. Check if we already discovered clips for this video (Cache Hit)
+    if chunk_offset > 0 and video_id in DISCOVERY_CACHE:
+        cached_clips = DISCOVERY_CACHE[video_id]
+        if chunk_offset < len(cached_clips):
+            logger.info(f"Cache hit! Serving clip {chunk_offset+1} of {len(cached_clips)} from memory.")
+            return {
+                "candidate_clips": [cached_clips[chunk_offset]],
+                "status": "processing",
+            }
+        else:
+            return {
+                "candidate_clips": [],
+                "status": "completed_no_clips",
+                "errors": state.get("errors", []) + ["No more unique clips available for this video."],
+            }
+
+    # 2. Cache Miss or First Run: Run full discovery across ALL chunks
     try:
         llm = get_llm_client()
         result = await clip_discovery_agent.run(transcript_chunks, llm)
 
         # Convert Pydantic models to dicts for state
-        candidate_clips = [clip.model_dump() for clip in result.clips]
-        logger.info(f"Discovered {len(candidate_clips)} candidate clips")
+        all_candidate_clips = [clip.model_dump() for clip in result.clips]
+        
+        # Save to cache
+        if video_id:
+            DISCOVERY_CACHE[video_id] = all_candidate_clips
+            logger.info(f"Cached {len(all_candidate_clips)} discovered clips for video {video_id}")
+
+        if not all_candidate_clips:
+            return {
+                "candidate_clips": [],
+                "status": "completed_no_clips",
+                "errors": state.get("errors", []) + ["No clips discovered by AI."],
+            }
+
+        # Return only the FIRST clip (or the requested offset if available)
+        selected_clip = all_candidate_clips[0] if chunk_offset == 0 and len(all_candidate_clips) > 0 else None
+        
+        if not selected_clip and chunk_offset < len(all_candidate_clips):
+             selected_clip = all_candidate_clips[chunk_offset]
+             
+        if not selected_clip:
+             return {
+                "candidate_clips": [],
+                "status": "completed_no_clips",
+                "errors": state.get("errors", []) + ["Offset exceeded available clips after fresh discovery."],
+            }
 
         return {
-            "candidate_clips": candidate_clips,
-            "status": "clips_discovered",
+            "candidate_clips": [selected_clip],
+            "status": "processing"
         }
     except ValueError as e:
         # LLM key not configured
@@ -234,8 +281,8 @@ async def editing_plan(state: ClipForgeState) -> dict:
         llm = get_llm_client()
         result = await editing_plan_agent.generate(validated_clips, llm)
 
-        # Convert Pydantic models to dicts
-        plans = [plan.model_dump() for plan in result.plans]
+        # Result is now a dict: {"plans": [{"clip_index": ..., "raw_plan": ...}]}
+        plans = result.get("plans", [])
         logger.info(f"Generated {len(plans)} editing plans")
 
         return {

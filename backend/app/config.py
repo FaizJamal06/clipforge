@@ -40,7 +40,7 @@ class Settings(BaseSettings):
 
     # LLM Provider (OpenRouter)
     llm_api_key: str = ""
-    llm_model: str = "anthropic/claude-sonnet-4-20250514"
+    llm_model: str = "google/gemini-2.5-flash"
     llm_base_url: str = "https://openrouter.ai/api/v1"
     llm_max_retries: int = 3
 

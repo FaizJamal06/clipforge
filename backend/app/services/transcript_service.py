@@ -101,7 +101,8 @@ def fetch_transcript(video_id: str, languages: list[str] = None) -> list[dict]:
 
     try:
         # Try to get manually created transcript first
-        transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
+        ytt_api = YouTubeTranscriptApi()
+        transcript_list = ytt_api.list(video_id)
 
         try:
             # Prefer manually created transcripts
