@@ -55,7 +55,11 @@ class Settings(BaseSettings):
     top_clips_count: int = 3
 
     # CORS
-    cors_origins: list[str] = ["http://localhost:3000"]
+    cors_origins: list[str] = [
+        "http://localhost:3000",
+        "https://clipforge.vercel.app",
+        "https://*.vercel.app",
+    ]
 
     class Config:
         env_file = ".env"
