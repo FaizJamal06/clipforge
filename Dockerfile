@@ -12,9 +12,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
+# Cache-bust: change this value to force a fresh pip install
+ARG CACHEBUST=2
+
 # Install Python dependencies from the backend folder
 COPY backend/requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application source code from the backend folder
 COPY backend/ .
