@@ -1,8 +1,8 @@
-# ClipForge AI 🎙️✂️
+# ClipForge AI ⚡
 
-> AI-powered podcast clipping system that identifies viral 40–60 second clips and generates professional editing blueprints.
+> AI-powered podcast clipping that identifies viral 40–60 second moments and generates frame-perfect editing blueprints — in seconds.
 
-Built with a modern 2025 generative AI stack — **LangGraph** for agentic orchestration, **LangChain** for LLM interactions, **FastAPI** for the backend, and **Next.js** for the frontend.
+**[Live App](https://clipforge-eosin.vercel.app)** · **[API Health](https://clipforge-production-4a6f.up.railway.app/health)** · **[API Docs](https://clipforge-production-4a6f.up.railway.app/docs)**
 
 ---
 
@@ -11,24 +11,37 @@ Built with a modern 2025 generative AI stack — **LangGraph** for agentic orche
 ```
 ┌─────────────┐     ┌──────────────────────────────────────────────┐     ┌───────────┐
 │   Next.js    │────▶│              FastAPI Backend                 │────▶│ PostgreSQL│
-│   Frontend   │◀────│                                              │◀────│   Redis   │
-└─────────────┘     │  ┌──────────────────────────────────────┐    │     └───────────┘
-                    │  │       LangGraph Pipeline              │    │
-                    │  │                                        │    │
-                    │  │  Input → Transcript → Processing →    │    │
-                    │  │  Clip Discovery → Validation →        │    │
-                    │  │  Editing Plan → Output Formatter      │    │
-                    │  │         ↑              |               │    │
-                    │  │         └── retry ─────┘               │    │
-                    │  └──────────────────────────────────────┘    │
-                    │                    │                          │
-                    │                    ▼                          │
-                    │            ┌──────────────┐                  │
-                    │            │  OpenRouter   │                  │
-                    │            │  (LLM API)   │                  │
-                    │            └──────────────┘                  │
-                    └──────────────────────────────────────────────┘
+│   Frontend   │◀────│                                              │◀────│   (Prod)  │
+│   (Vercel)   │ SSE │  ┌──────────────────────────────────────┐    │     └───────────┘
+│              │     │  │       LangGraph Pipeline              │    │
+│              │     │  │                                        │    │
+│              │     │  │  Input → Transcript → Processing →    │    │
+│              │     │  │  Clip Discovery → Validation →        │    │
+│              │     │  │  Editing Plan → Output Formatter      │    │
+│              │     │  │         ↑              |               │    │
+│              │     │  │         └── retry ─────┘               │    │
+│              │     │  └──────────────────────────────────────┘    │
+│              │     │                    │                          │
+│              │     │                    ▼                          │
+│              │     │            ┌──────────────┐                  │
+│              │     │            │ Google Gemini │                  │
+│              │     │            │   (LLM API)  │                  │
+│              │     │            └──────────────┘                  │
+└─────────────┘     └──────────────────────────────────────────────┘
+    Vercel                         Railway
 ```
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| AI Orchestration | LangGraph |
+| LLM Framework | LangChain |
+| LLM Provider | Google Gemini (via `langchain-google-genai`) |
+| Backend | Python 3.11, FastAPI, Uvicorn |
+| Frontend | Next.js 16, React 19, Tailwind CSS 4 |
+| Database | PostgreSQL (prod) / SQLite (dev) |
+| Hosting | Railway (backend) · Vercel (frontend) |
 
 ## Project Structure
 
@@ -36,9 +49,9 @@ Built with a modern 2025 generative AI stack — **LangGraph** for agentic orche
 clipforge/
 ├── backend/
 │   ├── app/
-│   │   ├── main.py              # FastAPI entry point
+│   │   ├── main.py              # FastAPI entry + CORS + health check
 │   │   ├── config.py            # Pydantic settings
-│   │   ├── dependencies.py      # Dependency injection
+│   │   ├── dependencies.py      # LLM + DB dependency injection
 │   │   ├── graph/
 │   │   │   ├── state.py         # LangGraph state schema
 │   │   │   ├── nodes.py         # Pipeline node functions
@@ -51,26 +64,23 @@ clipforge/
 │   │   │   ├── transcript_service.py
 │   │   │   └── chunking_service.py
 │   │   └── api/
-│   │       └── routes.py        # REST endpoints
+│   │       └── routes.py        # REST + SSE endpoints
+│   ├── Dockerfile
 │   └── requirements.txt
-├── frontend/                    # Next.js + React + Tailwind + shadcn/ui
-├── tests/
-├── .env.example
+├── frontend/
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── page.tsx         # Landing page
+│   │   │   ├── result/page.tsx  # Results display
+│   │   │   ├── layout.tsx
+│   │   │   └── globals.css
+│   │   └── components/
+│   │       └── url-input.tsx    # YouTube URL input + SSE client
+│   ├── package.json
+│   └── next.config.ts
 ├── .gitignore
 └── README.md
 ```
-
-## Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| AI Orchestration | LangGraph |
-| LLM Framework | LangChain |
-| LLM Provider | OpenRouter |
-| Backend | Python, FastAPI |
-| Frontend | Next.js, React, Tailwind, shadcn/ui |
-| Database | PostgreSQL |
-| Cache | Redis |
 
 ## Getting Started
 
@@ -78,21 +88,29 @@ clipforge/
 
 - Python 3.11+
 - Node.js 18+
-- PostgreSQL
-- Redis
+- A Google AI Studio API key
 
-### Backend Setup
+### Backend
 
 ```bash
 cd backend
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-cp ../.env.example ../.env  # Edit with your API keys
+```
+
+Create a `.env` file in `backend/`:
+
+```env
+GOOGLE_API_KEY=your_google_ai_studio_key
+DATABASE_URL=sqlite+aiosqlite:///./clipforge.db
+```
+
+```bash
 uvicorn app.main:app --reload --port 8000
 ```
 
-### Frontend Setup
+### Frontend
 
 ```bash
 cd frontend
@@ -100,26 +118,48 @@ npm install
 npm run dev
 ```
 
-### API Endpoints
+Create a `.env.local` file in `frontend/`:
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+## API Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/health` | Health check |
-| `POST` | `/api/v1/process` | Submit YouTube URL for clip discovery |
-| `GET` | `/api/v1/status/{job_id}` | Check processing status |
+| `GET` | `/api/v1/process/stream` | SSE stream — real-time clip discovery |
+| `POST` | `/api/v1/process` | Synchronous clip discovery |
+| `GET` | `/docs` | Swagger UI |
 
 ## How It Works
 
-1. **Input** — User pastes a YouTube URL
-2. **Transcript** — System fetches and processes the transcript
-3. **Discovery** — AI analyzes transcript for viral moments
-4. **Validation** — Clips are validated against strict rules (with retry loop)
-5. **Editing Plan** — Professional editing blueprint generated per clip
-6. **Output** — Structured results returned to the frontend
+1. **Input** — Paste a YouTube URL
+2. **Transcript** — Fetches and cleans the transcript (filler word removal, segmentation)
+3. **Discovery** — AI scans for viral hooks, counterintuitive takes, and high-energy moments
+4. **Validation** — Clips validated against strict 40–60s rules (with retry loop)
+5. **Editing Blueprint** — Frame-perfect editing plan generated per clip
+6. **Output** — Real-time results streamed to the frontend via SSE
 
-## Current Status
+## Deployment
 
-🏗️ **Architecture Scaffold Complete** — Project structure, LangGraph workflow, and placeholder agents are in place. Full agent implementations are the next development phase.
+| Service | Platform | URL |
+|---------|----------|-----|
+| Backend API | Railway | `clipforge-production-4a6f.up.railway.app` |
+| Frontend | Vercel | `clipforge-eosin.vercel.app` |
+
+### Environment Variables
+
+**Backend (Railway):**
+- `GOOGLE_API_KEY` — Google AI Studio API key
+- `DATABASE_URL` — PostgreSQL connection string
+- `PORT` — Set automatically by Railway
+
+**Frontend (Vercel):**
+- `NEXT_PUBLIC_API_URL` — Backend API URL
 
 ## License
 
