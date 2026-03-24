@@ -58,6 +58,7 @@ class Settings(BaseSettings):
     cors_origins: list[str] = [
         "http://localhost:3000",
         "https://clipforge.vercel.app",
+        "https://clipforge-eosin.vercel.app",
         "https://*.vercel.app",
     ]
 
