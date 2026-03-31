@@ -9,6 +9,7 @@ import logging
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.language_models.chat_models import BaseChatModel
 from pydantic import BaseModel, Field
+from app.security import PromptInjectionGuard
 
 logger = logging.getLogger(__name__)
 
@@ -126,8 +127,9 @@ async def generate(validated_clips: list[dict], llm: BaseChatModel) -> dict:
     editing_plans = []
     
     for i, clip in enumerate(validated_clips):
-        # We only send one clip at a time to enforce the exact formatting
+        # Sanitize clip data before sending to LLM
         clip_data = json.dumps([clip], indent=2)
+        clip_data = PromptInjectionGuard.sanitize(clip_data)
         raw_text = await chain.ainvoke({"validated_clips": clip_data})
         editing_plans.append({
             "clip_index": i,

@@ -8,8 +8,6 @@ and retrieve processing results.
 
 import logging
 import urllib.parse
-import logging
-import urllib.parse
 import json
 import asyncio
 from fastapi import APIRouter, HTTPException, Depends
@@ -22,6 +20,7 @@ from app.database import get_db
 from app.models.video import ProcessedVideo
 from app.graph.workflow import graph
 from app.services.transcript_service import TranscriptError
+from app.security import InputSanitizer, sanitize_error
 
 logger = logging.getLogger(__name__)
 
@@ -105,7 +104,12 @@ def format_clips_from_state(final_state: dict) -> list[ClipResult]:
 @router.get("/process/stream")
 async def stream_process_video(youtube_url: str, chunk_offset: int = 0, db: AsyncSession = Depends(get_db)):
     """Server-Sent Events (SSE) endpoint for processing a video in real-time."""
-    
+    # Sanitize input
+    try:
+        youtube_url = InputSanitizer.sanitize_url(youtube_url)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
     async def event_generator():
         vid_id = extract_video_id(youtube_url)
         cache_key = f"{vid_id}_{chunk_offset}" if vid_id else f"unknown_{chunk_offset}"
@@ -186,7 +190,7 @@ async def stream_process_video(youtube_url: str, chunk_offset: int = 0, db: Asyn
                 youtube_url=youtube_url,
                 video_id="",
                 clips=[],
-                errors=[f"Pipeline execution failed: {str(e)}"]
+                errors=[sanitize_error(e)]
             )
             yield f"data: {json.dumps({'type': 'error', 'data': error_response.model_dump()})}\n\n"
 
@@ -196,7 +200,12 @@ async def stream_process_video(youtube_url: str, chunk_offset: int = 0, db: Asyn
 @router.post("/process", response_model=ProcessResponse)
 async def process_video(request: ProcessRequest, db: AsyncSession = Depends(get_db)):
     """Legacy blocking endpoint - Submit a YouTube URL for clip discovery."""
-    
+    # Sanitize input
+    try:
+        request.youtube_url = InputSanitizer.sanitize_url(request.youtube_url)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
     logger.info(f"Processing request for URL: {request.youtube_url} | Offset: {request.chunk_offset}")
 
     vid_id = extract_video_id(request.youtube_url)
@@ -262,7 +271,7 @@ async def process_video(request: ProcessRequest, db: AsyncSession = Depends(get_
         logger.error(f"Pipeline execution failed: {e}")
         raise HTTPException(
             status_code=500,
-            detail=f"Pipeline execution failed: {str(e)}",
+            detail=sanitize_error(e),
         )
 
 

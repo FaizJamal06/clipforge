@@ -12,6 +12,7 @@ import asyncio
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.language_models.chat_models import BaseChatModel
 from pydantic import BaseModel, Field
+from app.security import PromptInjectionGuard
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +101,9 @@ async def run(transcript_chunks: list[str], llm: BaseChatModel) -> ClipDiscovery
     batches = []
     for i in range(0, len(transcript_chunks), BATCH_SIZE):
         batch = transcript_chunks[i:i + BATCH_SIZE]
-        combined_transcript = "\n\n---\n\n".join(batch)
+        # Sanitize each chunk to prevent prompt injection
+        sanitized_batch = [PromptInjectionGuard.sanitize(chunk) for chunk in batch]
+        combined_transcript = "\n\n---\n\n".join(sanitized_batch)
         batches.append(combined_transcript)
 
     async def process_batch(batch_idx: int, text: str):

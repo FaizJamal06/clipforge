@@ -1,7 +1,7 @@
 """
 ClipForge AI — FastAPI Application Entry Point
 
-Configures the FastAPI app with CORS, routers, and health check.
+Configures the FastAPI app with security middleware, CORS, routers, and health check.
 """
 
 from contextlib import asynccontextmanager
@@ -12,6 +12,7 @@ from app.config import get_settings
 from app.api.routes import router as api_router
 from app.database import engine, Base
 from app.models.video import ProcessedVideo
+from app.middleware import RateLimitMiddleware, SecurityHeadersMiddleware, APIKeyMiddleware
 
 settings = get_settings()
 
@@ -29,18 +30,30 @@ app = FastAPI(
         "clips and generates professional editing blueprints."
     ),
     version="0.1.0",
-    docs_url="/docs",
-    redoc_url="/redoc",
+    # Disable docs in production
+    docs_url="/docs" if settings.debug else None,
+    redoc_url="/redoc" if settings.debug else None,
     lifespan=lifespan,
 )
 
-# CORS middleware for Next.js frontend
+# ----- Security Middleware (order matters: outermost runs first) ----- #
+
+# 1. Security headers on ALL responses
+app.add_middleware(SecurityHeadersMiddleware)
+
+# 2. Rate limiting per IP
+app.add_middleware(RateLimitMiddleware)
+
+# 3. Optional API key authentication
+app.add_middleware(APIKeyMiddleware)
+
+# 4. CORS — tightened from allow_methods=["*"] / allow_headers=["*"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "X-API-Key", "Authorization"],
 )
 
 # Include API routes

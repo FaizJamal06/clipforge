@@ -62,6 +62,20 @@ class Settings(BaseSettings):
         "https://*.vercel.app",
     ]
 
+    # YouTube Proxy (bypass rate limits / IP bans)
+    yt_proxy_provider: str = ""           # "webshare" | "generic" | "" (disabled)
+    yt_proxy_url: str = ""                # Generic proxy URL, e.g. "http://user:pass@proxy:port"
+    yt_proxy_username: str = ""           # Webshare proxy username
+    yt_proxy_password: str = ""           # Webshare proxy password
+    yt_cookie_file: str = ""              # Path to cookies.txt for YouTube auth
+    yt_max_retries: int = 3               # Retry attempts on rate-limit / IP ban
+    yt_retry_base_delay: float = 2.0      # Base delay (seconds) for exponential backoff
+
+    # Security
+    api_keys: list[str] = []              # Allowed API keys (empty = auth disabled)
+    rate_limit_per_minute: int = 20       # Max requests per IP per minute
+    rate_limit_burst: int = 5             # Max burst requests in 2-second window
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

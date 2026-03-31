@@ -2,11 +2,13 @@
 ClipForge AI — Transcript Service
 
 Handles fetching transcripts from YouTube using the youtube-transcript-api.
-Includes URL validation, video ID extraction, caching, and error handling.
+Includes URL validation, video ID extraction, proxy support for bypassing
+IP bans/rate limits, exponential backoff retries, and caching.
 """
 
 import json
 import re
+import time
 import logging
 from typing import Optional
 
@@ -15,7 +17,11 @@ from youtube_transcript_api._errors import (
     TranscriptsDisabled,
     NoTranscriptFound,
     VideoUnavailable,
+    RequestBlocked,
 )
+from youtube_transcript_api.proxies import GenericProxyConfig, WebshareProxyConfig
+
+from app.config import get_settings
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +30,77 @@ class TranscriptError(Exception):
     """Raised when transcript fetching fails."""
     pass
 
+
+# ---------------------------------------------------------------------------
+# YouTube Transcript API client (singleton with proxy support)
+# ---------------------------------------------------------------------------
+
+_ytt_api_instance: Optional[YouTubeTranscriptApi] = None
+
+
+def _build_ytt_api() -> YouTubeTranscriptApi:
+    """Build a YouTubeTranscriptApi instance with proxy config from settings.
+
+    Supports three modes:
+        - "webshare"  → WebshareProxyConfig (rotating residential proxies)
+        - "generic"   → GenericProxyConfig (any HTTP/HTTPS/SOCKS proxy URL)
+        - ""          → No proxy (direct connection)
+    """
+    global _ytt_api_instance
+    if _ytt_api_instance is not None:
+        return _ytt_api_instance
+
+    settings = get_settings()
+    provider = settings.yt_proxy_provider.lower().strip()
+
+    proxy_config = None
+
+    if provider == "webshare":
+        if not settings.yt_proxy_username or not settings.yt_proxy_password:
+            logger.warning(
+                "yt_proxy_provider is 'webshare' but username/password not set. "
+                "Falling back to direct connection."
+            )
+        else:
+            proxy_config = WebshareProxyConfig(
+                proxy_username=settings.yt_proxy_username,
+                proxy_password=settings.yt_proxy_password,
+            )
+            logger.info("YouTube transcript API configured with Webshare rotating proxy")
+
+    elif provider == "generic":
+        if not settings.yt_proxy_url:
+            logger.warning(
+                "yt_proxy_provider is 'generic' but yt_proxy_url not set. "
+                "Falling back to direct connection."
+            )
+        else:
+            proxy_config = GenericProxyConfig(
+                http_url=settings.yt_proxy_url,
+                https_url=settings.yt_proxy_url,
+            )
+            logger.info(f"YouTube transcript API configured with generic proxy")
+
+    elif provider:
+        logger.warning(f"Unknown yt_proxy_provider '{provider}'. Using direct connection.")
+
+    kwargs = {}
+    if proxy_config:
+        kwargs["proxy_config"] = proxy_config
+
+    _ytt_api_instance = YouTubeTranscriptApi(**kwargs)
+    return _ytt_api_instance
+
+
+def reset_ytt_api():
+    """Reset the cached API instance (useful for testing or config changes)."""
+    global _ytt_api_instance
+    _ytt_api_instance = None
+
+
+# ---------------------------------------------------------------------------
+# URL helpers
+# ---------------------------------------------------------------------------
 
 def extract_video_id(youtube_url: str) -> Optional[str]:
     """Extract the video ID from a YouTube URL.
@@ -81,9 +158,14 @@ def validate_youtube_url(youtube_url: str) -> str:
     return video_id
 
 
-def fetch_transcript(video_id: str, languages: list[str] = None) -> list[dict]:
-    """Fetch the transcript for a YouTube video.
+# ---------------------------------------------------------------------------
+# Core transcript fetching (with retry on rate-limit / IP ban)
+# ---------------------------------------------------------------------------
 
+def fetch_transcript(video_id: str, languages: list[str] = None) -> list[dict]:
+    """Fetch the transcript for a YouTube video with automatic retry.
+
+    Uses exponential backoff on RequestBlocked / IP ban errors.
     Prefers manually-uploaded captions over auto-generated ones.
 
     Args:
@@ -94,14 +176,46 @@ def fetch_transcript(video_id: str, languages: list[str] = None) -> list[dict]:
         A list of transcript segment dicts with keys: text, start, duration.
 
     Raises:
-        TranscriptError: If transcript cannot be fetched.
+        TranscriptError: If transcript cannot be fetched after all retries.
     """
     if languages is None:
         languages = ["en"]
 
+    settings = get_settings()
+    max_retries = settings.yt_max_retries
+    base_delay = settings.yt_retry_base_delay
+
+    last_exception: Optional[Exception] = None
+
+    for attempt in range(1, max_retries + 1):
+        try:
+            return _fetch_transcript_once(video_id, languages)
+        except (RequestBlocked,) as e:
+            last_exception = e
+            if attempt < max_retries:
+                delay = base_delay * (2 ** (attempt - 1))  # exponential backoff
+                logger.warning(
+                    f"YouTube blocked request for {video_id} (attempt {attempt}/{max_retries}). "
+                    f"Retrying in {delay:.1f}s..."
+                )
+                time.sleep(delay)
+            else:
+                logger.error(
+                    f"YouTube blocked all {max_retries} attempts for {video_id}. "
+                    "Consider configuring a proxy (YT_PROXY_PROVIDER)."
+                )
+
+    raise TranscriptError(
+        f"YouTube blocked transcript requests for video {video_id} after {max_retries} attempts. "
+        "Your IP is likely rate-limited. Configure a proxy via YT_PROXY_PROVIDER env var "
+        "(see docs for Webshare or generic proxy setup)."
+    )
+
+
+def _fetch_transcript_once(video_id: str, languages: list[str]) -> list[dict]:
+    """Single attempt to fetch a transcript (no retry)."""
     try:
-        # Try to get manually created transcript first
-        ytt_api = YouTubeTranscriptApi()
+        ytt_api = _build_ytt_api()
         transcript_list = ytt_api.list(video_id)
 
         try:
@@ -152,11 +266,18 @@ def fetch_transcript(video_id: str, languages: list[str] = None) -> list[dict]:
             f"Video {video_id} is unavailable. "
             "It may be private, deleted, or region-locked."
         )
+    except RequestBlocked:
+        # Let this bubble up so the retry wrapper can catch it
+        raise
     except TranscriptError:
         raise
     except Exception as e:
         raise TranscriptError(f"Failed to fetch transcript for video {video_id}: {str(e)}")
 
+
+# ---------------------------------------------------------------------------
+# Cached variant (Redis)
+# ---------------------------------------------------------------------------
 
 async def fetch_transcript_cached(
     video_id: str,
