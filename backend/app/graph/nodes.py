@@ -281,8 +281,8 @@ async def editing_plan(state: ClipForgeState) -> dict:
         llm = get_llm_client()
         result = await editing_plan_agent.generate(validated_clips, llm)
 
-        # Result is now a dict: {"plans": [{"clip_index": ..., "raw_plan": ...}]}
-        plans = result.get("plans", [])
+        # Result is now an EditingPlanOutput Pydantic model
+        plans = [plan.model_dump() for plan in result.plans]
         logger.info(f"Generated {len(plans)} editing plans")
 
         return {

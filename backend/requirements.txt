@@ -29,10 +29,10 @@ aiosqlite>=0.20.0
 # Caching
 redis>=5.2.0
 
-# Transcript
+# Transcript (official YouTube API via httpx, legacy fallback via youtube-transcript-api)
 youtube-transcript-api>=0.6.0
 
-# HTTP client
+# HTTP client (used for YouTube Data API v3)
 httpx>=0.28.0
 
 # Testing

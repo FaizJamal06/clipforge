@@ -6,6 +6,7 @@ Includes timestamps, B-roll suggestions, caption strategy, and pacing instructio
 """
 
 import logging
+import asyncio
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.language_models.chat_models import BaseChatModel
 from pydantic import BaseModel, Field
@@ -32,8 +33,8 @@ class ClipEditingPlan(BaseModel):
     hook_strategy: str = Field(description="How to visually emphasize the opening hook.")
     segments: list[EditingSegment] = Field(description="Timeline of editing segments.")
     caption_style: str = Field(description="Overall caption style recommendation.")
-    pacing_notes: str = Field(description="General pacing and rhythm instructions.")
-    call_to_action: str = Field(description="Recommended CTA for the end of the clip.")
+    pacing_notes: str | None = Field(default=None, description="General pacing and rhythm instructions.")
+    call_to_action: str | None = Field(default=None, description="Recommended CTA for the end of the clip.")
 
 
 class EditingPlanOutput(BaseModel):
@@ -113,28 +114,53 @@ Generate a detailed, actionable editing blueprint for each clip.""",
 ])
 
 
-from langchain_core.output_parsers import StrOutputParser
 
 # ----- Agent Logic ----- #
 
-async def generate(validated_clips: list[dict], llm: BaseChatModel) -> dict:
+async def generate(validated_clips: list[dict], llm: BaseChatModel) -> EditingPlanOutput:
     import json
+    import re
+    from app.rate_limiter import get_rate_limiter
     
-    chain = EDITING_PLAN_PROMPT | llm | StrOutputParser()
+    structured_llm = llm.with_structured_output(EditingPlanOutput)
+    chain = EDITING_PLAN_PROMPT | structured_llm
+    rate_limiter = get_rate_limiter()
     
     logger.info(f"Generating editing plans for {len(validated_clips)} clips individually...")
     
     editing_plans = []
     
     for i, clip in enumerate(validated_clips):
+        label = f"editing plan {i + 1}/{len(validated_clips)}"
         # Sanitize clip data before sending to LLM
         clip_data = json.dumps([clip], indent=2)
         clip_data = PromptInjectionGuard.sanitize(clip_data)
-        raw_text = await chain.ainvoke({"validated_clips": clip_data})
-        editing_plans.append({
-            "clip_index": i,
-            "raw_plan": raw_text
-        })
+
+        for attempt in range(3):
+            try:
+                await rate_limiter.acquire(label)
+                result = await chain.ainvoke({"validated_clips": clip_data})
+                if result and result.plans:
+                    editing_plans.extend(result.plans)
+                break  # Success
+            except Exception as e:
+                error_str = str(e)
+                logger.error(f"Error in {label} (attempt {attempt+1}): {e}")
+
+                if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
+                    match = re.search(r'retry in (\d+(?:\.\d+)?)s', error_str, re.IGNORECASE)
+                    retry_after = float(match.group(1)) if match else 0
+                    rate_limiter.report_rate_limit_error(retry_after)
+                    wait = max(retry_after, 15.0) + 2
+                    logger.info(f"{label}: rate limited, waiting {wait:.0f}s before retry")
+                    await asyncio.sleep(wait)
+                else:
+                    logger.error(
+                        f"{label}: failed after {attempt+1} attempt(s), "
+                        f"clip will be missing from output. Error: {e}"
+                    )
+                    break  # Non-retryable error
         
     logger.info(f"Generated {len(editing_plans)} editing plans")
-    return {"plans": editing_plans}
+    return EditingPlanOutput(plans=editing_plans)
+

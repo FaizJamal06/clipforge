@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+import LoadingTerminal from "./loading-terminal";
+
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -21,7 +23,7 @@ export default function UrlInput() {
   const router = useRouter();
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState("Initializing...");
+  const [status, setStatus] = useState("initialized");
   const [error, setError] = useState<string | null>(null);
 
   const processUrl = async () => {
@@ -29,7 +31,7 @@ export default function UrlInput() {
 
     setLoading(true);
     setError(null);
-    setLoadingMessage("Connecting to server...");
+    setStatus("initialized");
 
     try {
       const streamUrl = `${API_BASE_URL}/api/v1/process/stream?youtube_url=${encodeURIComponent(url)}&chunk_offset=0`;
@@ -40,8 +42,7 @@ export default function UrlInput() {
           const payload = JSON.parse(e.data);
           
           if (payload.type === "update") {
-             const msg = statusToStepMessage[payload.status] || `Processing (${payload.status})...`;
-             setLoadingMessage(msg);
+             setStatus(payload.status);
           } 
           else if (payload.type === "complete") {
              eventSource.close();
@@ -83,46 +84,36 @@ export default function UrlInput() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px", width: "100%" }}>
-      {/* URL Input Form */}
-      <form onSubmit={handleSubmit} style={{ display: "flex", gap: "12px", width: "100%" }}>
-        <input
-          id="youtube-url-input"
-          type="url"
-          placeholder="Paste a YouTube URL..."
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          className="custom-input"
-          style={{ flex: 1 }}
-          disabled={loading}
-          suppressHydrationWarning
-        />
-        <button 
-          id="submit-button" 
-          type="submit" 
-          disabled={loading || !url.trim()}
-          className="btn btn-primary"
-          style={{ whiteSpace: "nowrap", height: "auto", padding: "14px 28px" }}
-          suppressHydrationWarning
-        >
-          {loading ? (
-            <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <span className="badge badge-dot" style={{ background: "transparent", border: "none", padding: 0, minWidth: "12px", minHeight: "12px" }}></span>
-              Working...
-            </span>
-          ) : (
-            "Find Clips"
-          )}
-        </button>
-      </form>
+      {/* URL Input Form - Hide while loading to focus on terminal */}
+      {!loading && (
+        <form onSubmit={handleSubmit} style={{ display: "flex", gap: "12px", width: "100%" }}>
+          <input
+            id="youtube-url-input"
+            type="url"
+            placeholder="Paste a YouTube URL..."
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            className="custom-input"
+            style={{ flex: 1 }}
+            disabled={loading}
+            suppressHydrationWarning
+          />
+          <button 
+            id="submit-button" 
+            type="submit" 
+            disabled={!url.trim()}
+            className="btn btn-primary"
+            style={{ whiteSpace: "nowrap", height: "auto", padding: "14px 28px" }}
+            suppressHydrationWarning
+          >
+            Find Clips
+          </button>
+        </form>
+      )}
 
       {/* Loading State Container */}
       {loading && (
-        <div className="card anim-fade-up" style={{ padding: "20px", background: "rgba(255, 79, 31, 0.03)", borderColor: "rgba(255, 79, 31, 0.2)", display: "flex", alignItems: "center", gap: "16px" }}>
-          <div className="badge badge-forge badge-dot" style={{ width: "fit-content" }}>Processing</div>
-          <span style={{ fontFamily: "var(--font-mono)", fontSize: "12px", color: "var(--text-secondary)" }}>
-            {loadingMessage}
-          </span>
-        </div>
+        <LoadingTerminal status={status} />
       )}
 
       {/* Error Display */}

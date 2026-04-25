@@ -6,6 +6,7 @@ for the entire backend application.
 """
 
 from pydantic_settings import BaseSettings
+from pydantic import Field
 from functools import lru_cache
 
 
@@ -54,6 +55,10 @@ class Settings(BaseSettings):
     clip_max_duration: int = 60
     top_clips_count: int = 3
 
+    # LLM Rate Limiting (Gemini free tier: 5 req/min — use 4 for safety)
+    llm_rate_limit_rpm: int = 4           # Max LLM requests per minute
+    llm_batch_size: int = 7               # Chunks per discovery batch
+
     # CORS
     cors_origins: list[str] = [
         "http://localhost:3000",
@@ -62,14 +67,10 @@ class Settings(BaseSettings):
         "https://*.vercel.app",
     ]
 
-    # YouTube Proxy (bypass rate limits / IP bans)
-    yt_proxy_provider: str = ""           # "webshare" | "generic" | "" (disabled)
-    yt_proxy_url: str = ""                # Generic proxy URL, e.g. "http://user:pass@proxy:port"
-    yt_proxy_username: str = ""           # Webshare proxy username
-    yt_proxy_password: str = ""           # Webshare proxy password
-    yt_cookie_file: str = ""              # Path to cookies.txt for YouTube auth
-    yt_max_retries: int = 3               # Retry attempts on rate-limit / IP ban
-    yt_retry_base_delay: float = 2.0      # Base delay (seconds) for exponential backoff
+    # YouTube Settings
+    youtube_api_key: str | None = Field(default=None, description="YouTube Data API v3 Key")
+    youtube_proxy: str | None = Field(default=None, description="Proxy URL for fetching transcripts (e.g., http://user:pass@proxy.com:8080)")
+    supadata_api_key: str | None = Field(default=None, description="Supadata API Key for fetching transcripts reliably")
 
     # Security
     api_keys: list[str] = []              # Allowed API keys (empty = auth disabled)

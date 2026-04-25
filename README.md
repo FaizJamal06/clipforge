@@ -104,6 +104,8 @@ Create a `.env` file in `backend/`:
 ```env
 GOOGLE_API_KEY=your_google_ai_studio_key
 DATABASE_URL=sqlite+aiosqlite:///./clipforge.db
+SUPADATA_API_KEY=your_supadata_api_key  # Highly recommended for robust transcript fetching
+YOUTUBE_PROXY=http://user:pass@proxy.com:8080 # Fallback proxy for youtube-transcript-api
 ```
 
 ```bash
@@ -156,6 +158,8 @@ Open [http://localhost:3000](http://localhost:3000).
 **Backend (Railway):**
 - `GOOGLE_API_KEY` — Google AI Studio API key
 - `DATABASE_URL` — PostgreSQL connection string
+- `SUPADATA_API_KEY` — Supadata API key for robust YouTube transcript fetching
+- `YOUTUBE_PROXY` — Optional proxy for youtube-transcript-api fallback
 - `PORT` — Set automatically by Railway
 
 **Frontend (Vercel):**
