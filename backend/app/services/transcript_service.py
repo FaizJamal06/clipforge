@@ -518,9 +518,13 @@ def _fetch_via_supadata(video_id: str) -> list[dict]:
     url = f"https://api.supadata.ai/v1/youtube/transcript?videoId={video_id}"
     headers = {"x-api-key": settings.supadata_api_key}
     
-    import requests
-    response = requests.get(url, headers=headers, timeout=10)
-    
+    import httpx
+    try:
+        with httpx.Client(timeout=10.0) as client:
+            response = client.get(url, headers=headers)
+    except httpx.RequestError as e:
+        raise TranscriptError(f"Supadata API request failed: {e}")
+        
     if response.status_code == 401 or response.status_code == 403:
         raise TranscriptError("Supadata API key is invalid or unauthorized.")
     if response.status_code == 404:

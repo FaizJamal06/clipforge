@@ -26,13 +26,24 @@ from app.graph.nodes import (
 from app.config import get_settings
 
 
+def check_status(state: ClipForgeState) -> str:
+    """Generic conditional edge to short-circuit on failure."""
+    if state.get("status") == "failed":
+        return "failed"
+    return "continue"
+
+
 def should_retry_validation(state: ClipForgeState) -> str:
     """Conditional edge: decides whether to retry clip discovery or proceed.
 
     Returns:
         "retry" — if validation failed and retries remain.
         "continue" — if validation passed or max retries reached.
+        "failed" — if the pipeline failed entirely.
     """
+    if state.get("status") == "failed":
+        return "failed"
+        
     settings = get_settings()
     max_retries = settings.max_validation_retries
 
@@ -71,11 +82,11 @@ def build_workflow() -> StateGraph:
     # Set entry point
     workflow.set_entry_point("input_handler")
 
-    # Wire sequential edges
-    workflow.add_edge("input_handler", "transcript_retrieval")
-    workflow.add_edge("transcript_retrieval", "transcript_processing")
-    workflow.add_edge("transcript_processing", "clip_discovery")
-    workflow.add_edge("clip_discovery", "clip_validation")
+    # Wire sequential edges with failure checks
+    workflow.add_conditional_edges("input_handler", check_status, {"failed": END, "continue": "transcript_retrieval"})
+    workflow.add_conditional_edges("transcript_retrieval", check_status, {"failed": END, "continue": "transcript_processing"})
+    workflow.add_conditional_edges("transcript_processing", check_status, {"failed": END, "continue": "clip_discovery"})
+    workflow.add_conditional_edges("clip_discovery", check_status, {"failed": END, "continue": "clip_validation"})
 
     # Conditional edge: validation retry loop
     workflow.add_conditional_edges(
@@ -84,11 +95,12 @@ def build_workflow() -> StateGraph:
         {
             "retry": "clip_discovery",
             "continue": "editing_plan",
+            "failed": END,
         },
     )
 
     # Continue to output
-    workflow.add_edge("editing_plan", "output_formatter")
+    workflow.add_conditional_edges("editing_plan", check_status, {"failed": END, "continue": "output_formatter"})
     workflow.add_edge("output_formatter", END)
 
     return workflow.compile()

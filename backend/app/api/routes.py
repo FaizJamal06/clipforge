@@ -121,11 +121,14 @@ async def stream_process_video(youtube_url: str, chunk_offset: int = 0, db: Asyn
             cached_entry = result.scalar_one_or_none()
             
             if cached_entry:
-                logger.info(f"SSE Cache Hit: {cache_key}")
                 cached_payload = cached_entry.get_payload()
-                # Yield instant completion
-                yield f"data: {json.dumps({'type': 'complete', 'data': cached_payload})}\n\n"
-                return
+                if not cached_payload.get("errors"):
+                    logger.info(f"SSE Cache Hit: {cache_key}")
+                    # Yield instant completion
+                    yield f"data: {json.dumps({'type': 'complete', 'data': cached_payload})}\n\n"
+                    return
+                else:
+                    logger.info(f"SSE Cache Ignore (Poisoned): {cache_key}")
         except Exception as e:
             logger.warning(f"Failed to read from cache: {e}")
 
@@ -167,7 +170,7 @@ async def stream_process_video(youtube_url: str, chunk_offset: int = 0, db: Asyn
             )
             
             # Save to Cache
-            if response.status != "failed" and response.video_id:
+            if response.status not in ["failed", "completed_no_clips"] and not response.errors and response.video_id:
                 try:
                     new_cache = ProcessedVideo(
                         video_id=cache_key,
@@ -218,8 +221,12 @@ async def process_video(request: ProcessRequest, db: AsyncSession = Depends(get_
         cached_entry = result.scalar_one_or_none()
         
         if cached_entry:
-            logger.info(f"Serve from Cache Hit: {cache_key}")
-            return ProcessResponse(**cached_entry.get_payload())
+            cached_payload = cached_entry.get_payload()
+            if not cached_payload.get("errors"):
+                logger.info(f"Serve from Cache Hit: {cache_key}")
+                return ProcessResponse(**cached_payload)
+            else:
+                logger.info(f"Serve from Cache Ignore (Poisoned): {cache_key}")
     except Exception as e:
         logger.warning(f"Failed to read from cache: {e}")
 
@@ -252,7 +259,7 @@ async def process_video(request: ProcessRequest, db: AsyncSession = Depends(get_
 
         # Save to Database Cache
         try:
-            if response.status != "failed" and response.video_id:
+            if response.status not in ["failed", "completed_no_clips"] and not response.errors and response.video_id:
                 new_cache = ProcessedVideo(
                     video_id=cache_key,
                     youtube_url=request.youtube_url
