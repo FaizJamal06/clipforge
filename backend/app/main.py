@@ -10,8 +10,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
 from app.api.routes import router as api_router
+from app.api.waitlist import router as waitlist_router
 from app.database import engine, Base
 from app.models.video import ProcessedVideo
+from app.models.waitlist import WaitlistEntry  # ensure table is created
 from app.middleware import RateLimitMiddleware, SecurityHeadersMiddleware, APIKeyMiddleware
 
 settings = get_settings()
@@ -58,6 +60,7 @@ app.add_middleware(
 
 # Include API routes
 app.include_router(api_router, prefix=f"/api/{settings.api_version}")
+app.include_router(waitlist_router, prefix=f"/api/{settings.api_version}")
 
 
 @app.get("/health")

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import UrlInput from "@/components/url-input";
+import WaitlistForm from "@/components/waitlist-form";
 
 export default function Home() {
   const [navScrolled, setNavScrolled] = useState(false);
@@ -159,8 +160,8 @@ export default function Home() {
             {/* Left: Copy */}
             <div className="hero-copy">
               <div className="hero-eyebrow anim-fade-up">
-                <span className="badge badge-forge badge-dot">Now in beta</span>
-                <span className="badge badge-spark">🏆 #1 on Product Hunt</span>
+                <span className="badge badge-forge badge-dot">AI Clip Engine · Beta</span>
+                <span className="badge badge-wave">⚡ Auto-edit coming soon</span>
               </div>
 
               <h1 className="hero-title anim-fade-up anim-delay-1">
@@ -606,35 +607,51 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── CTA SECTION ─── */}
+      {/* ─── WAITLIST / CTA SECTION ─── */}
       <section className="cta-section" id="cta">
         <div className="container">
           <div className="cta-inner reveal">
             <span
-              className="badge badge-forge badge-dot"
+              className="badge badge-spark badge-dot"
               style={{ marginBottom: "var(--space-xl)", display: "inline-flex" }}
             >
-              Early access open
+              Coming Next — Auto Editing
             </span>
             <h2>
-              Ready to forge<br />
-              your first viral clip?
+              The AI that edits<br />
+              <em style={{ fontStyle: "normal", color: "var(--color-forge)" }}>for</em> you. Coming soon.
             </h2>
-            <p>
-              Join 18,000 creators already using ClipForge. Free to start — no
-              credit card required.
+            <p style={{ maxWidth: 560, margin: "0 auto var(--space-2xl)" }}>
+              ClipForge is shipping <strong style={{ color: "var(--text-primary)" }}>auto-editing and automated planning</strong> — 
+              full clip export, captions burned in, B-roll sequenced, and music faded. Join the waitlist to get early access.
             </p>
-            <div className="cta-input-row">
-              <input
-                className="custom-input"
-                type="email"
-                placeholder="you@podcast.com"
-                suppressHydrationWarning
-              />
-              <button className="btn btn-primary btn-lg" suppressHydrationWarning>Notify me</button>
+
+            {/* Feature chips */}
+            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "10px", marginBottom: "var(--space-2xl)" }}>
+              {[
+                { icon: "🎬", label: "Auto B-Roll Sequencing" },
+                { icon: "💬", label: "Captions Burned In" },
+                { icon: "🎵", label: "AI Music Matching" },
+                { icon: "⚡", label: "One-Click Export" },
+                { icon: "📋", label: "Automated Planning" },
+                { icon: "🔁", label: "Batch Processing" },
+              ].map(({ icon, label }) => (
+                <span key={label} style={{
+                  display: "inline-flex", alignItems: "center", gap: 6,
+                  padding: "8px 14px", borderRadius: 999,
+                  background: "var(--color-slate-mid)",
+                  border: "1px solid var(--color-slate-border)",
+                  fontSize: 12, color: "var(--text-secondary)",
+                  fontFamily: "var(--font-mono)",
+                }}>
+                  <span>{icon}</span>{label}
+                </span>
+              ))}
             </div>
-            <p className="cta-small">
-              Free plan: 5 clips/month · No card needed · Cancel anytime
+
+            <WaitlistForm source="landing_page" cta="Join Waitlist →" layout="row" />
+            <p className="cta-small" style={{ marginTop: "var(--space-lg)" }}>
+              🔒 No spam · Free early access · Cancel anytime
             </p>
           </div>
         </div>

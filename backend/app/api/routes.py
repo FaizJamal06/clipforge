@@ -39,6 +39,25 @@ class ProcessRequest(BaseModel):
     chunk_offset: int = Field(default=0, description="Chunk offset to process.")
 
 
+class EditingSegmentResult(BaseModel):
+    """A single segment within the editing timeline."""
+    timestamp: str = Field(default="", description="Timestamp range for this segment.")
+    visual_type: str = Field(default="", description="Type of visual (talking_head, broll, text_overlay).")
+    broll_idea: str = Field(default="", description="B-roll suggestion for this segment.")
+    caption_text: str = Field(default="", description="Caption/subtitle text for this segment.")
+    editing_note: str = Field(default="", description="Pacing or editing instruction.")
+
+
+class EditingPlanResult(BaseModel):
+    """Structured editing blueprint for a single clip."""
+    title_suggestion: str = Field(default="", description="Suggested scroll-stopping title.")
+    hook_strategy: str = Field(default="", description="How to visually nail the opening 3-5 seconds.")
+    segments: list[EditingSegmentResult] = Field(default_factory=list, description="Timeline of editing segments.")
+    caption_style: str = Field(default="", description="Overall caption style recommendation.")
+    pacing_notes: str = Field(default="", description="General pacing and rhythm instructions.")
+    call_to_action: str = Field(default="", description="Recommended CTA for the end of the clip.")
+
+
 class ClipResult(BaseModel):
     """A single validated clip with its editing plan."""
     clip_text: str = Field(description="Verbatim clip transcript text.")
@@ -49,7 +68,7 @@ class ClipResult(BaseModel):
     virality_reasoning: str = Field(default="", description="Why this clip is viral.")
     hook: str = Field(default="", description="The opening hook.")
     payoff: str = Field(default="", description="The satisfying payoff.")
-    editing_plan: str = Field(default="", description="Editing blueprint for this clip in raw text.")
+    editing_plan: EditingPlanResult = Field(default_factory=EditingPlanResult, description="Structured editing blueprint.")
 
 
 class ProcessResponse(BaseModel):
@@ -83,7 +102,28 @@ def format_clips_from_state(final_state: dict) -> list[ClipResult]:
             (p for p in editing_plans if p.get("clip_index") == i),
             {}
         )
-        raw_plan_text = matching_plan_dict.get("raw_plan", "")
+
+        # Build structured editing plan from the ClipEditingPlan fields
+        raw_segments = matching_plan_dict.get("segments", [])
+        segments = [
+            EditingSegmentResult(
+                timestamp=seg.get("timestamp", ""),
+                visual_type=seg.get("visual_type", ""),
+                broll_idea=seg.get("broll_idea", ""),
+                caption_text=seg.get("caption_text", ""),
+                editing_note=seg.get("editing_note", ""),
+            )
+            for seg in raw_segments
+        ]
+
+        editing_plan = EditingPlanResult(
+            title_suggestion=matching_plan_dict.get("title_suggestion", ""),
+            hook_strategy=matching_plan_dict.get("hook_strategy", ""),
+            segments=segments,
+            caption_style=matching_plan_dict.get("caption_style", ""),
+            pacing_notes=matching_plan_dict.get("pacing_notes", "") or "",
+            call_to_action=matching_plan_dict.get("call_to_action", "") or "",
+        )
 
         clips.append(ClipResult(
             clip_text=clip.get("clip_text", ""),
@@ -94,7 +134,7 @@ def format_clips_from_state(final_state: dict) -> list[ClipResult]:
             virality_reasoning=clip.get("virality_reasoning", ""),
             hook=clip.get("hook", ""),
             payoff=clip.get("payoff", ""),
-            editing_plan=raw_plan_text,
+            editing_plan=editing_plan,
         ))
     return clips
 

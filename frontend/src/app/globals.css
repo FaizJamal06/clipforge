@@ -1302,3 +1302,42 @@ a { color: inherit; text-decoration: none; }
 .wave-bar:nth-child(18) { height: 36px; }
 .wave-bar:nth-child(19) { height: 28px; }
 .wave-bar:nth-child(20) { height: 22px; }
+
+/* ─────────────────────────────────────────
+   RESULT PAGE EXTRAS
+───────────────────────────────────────── */
+/* Score ring entrance */
+@keyframes score-ring-in {
+  from { stroke-dasharray: 0 999; }
+}
+
+/* Blueprint section hover lift */
+.bp-section-hover {
+  transition: transform var(--duration-mid) var(--ease-out-expo),
+              box-shadow var(--duration-mid) var(--ease-out-expo);
+}
+.bp-section-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* CTA heading em */
+.cta-inner em {
+  font-style: normal;
+  color: var(--color-forge);
+}
+
+/* Chip hover */
+.coming-chip {
+  transition: border-color var(--duration-fast) ease, color var(--duration-fast) ease;
+}
+.coming-chip:hover {
+  border-color: rgba(255,79,31,0.35) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Clip card expand animation */
+@keyframes expand-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
