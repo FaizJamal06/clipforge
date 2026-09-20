@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession, signIn } from "next-auth/react";
 
 import LoadingTerminal from "./loading-terminal";
+import { streamSSE } from "@/lib/sse";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -21,13 +23,14 @@ const statusToStepMessage: Record<string, string> = {
 
 export default function UrlInput() {
   const router = useRouter();
+  const { data: session, status: sessionStatus } = useSession();
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("initialized");
   const [error, setError] = useState<string | null>(null);
 
   const processUrl = async () => {
-    if (!url.trim()) return;
+    if (!url.trim() || !session?.backendToken) return;
 
     setLoading(true);
     setError(null);
@@ -35,43 +38,24 @@ export default function UrlInput() {
 
     try {
       const streamUrl = `${API_BASE_URL}/api/v1/process/stream?youtube_url=${encodeURIComponent(url)}&chunk_offset=0`;
-      const eventSource = new EventSource(streamUrl);
 
-      eventSource.onmessage = (e) => {
-        try {
-          const payload = JSON.parse(e.data);
-          
-          if (payload.type === "update") {
-             setStatus(payload.status);
-          } 
-          else if (payload.type === "complete") {
-             eventSource.close();
-             sessionStorage.setItem("clipforge_latest_result", JSON.stringify(payload.data));
-             sessionStorage.setItem("clipforge_latest_url", url);
-             sessionStorage.setItem("clipforge_latest_offset", "0");
-             router.push("/result");
-          }
-          else if (payload.type === "error") {
-             eventSource.close();
-             const errData = payload.data?.errors?.[0] || "Pipeline execution failed.";
-             setError(errData);
-             setLoading(false);
-          }
-        } catch (err) {
-          console.error("Failed to parse SSE payload", err);
+      await streamSSE(streamUrl, session.backendToken, (payload) => {
+        if (payload.type === "update") {
+          setStatus(payload.status as string);
+        } else if (payload.type === "complete") {
+          sessionStorage.setItem("clipforge_latest_result", JSON.stringify(payload.data));
+          sessionStorage.setItem("clipforge_latest_url", url);
+          sessionStorage.setItem("clipforge_latest_offset", "0");
+          router.push("/result");
+        } else if (payload.type === "error") {
+          const data = payload.data as { errors?: string[] } | undefined;
+          setError(data?.errors?.[0] || "Pipeline execution failed.");
+          setLoading(false);
         }
-      };
-
-      eventSource.onerror = () => {
-        eventSource.close();
-        // Fallback or generic network error
-        setError("Network connection to the pipeline dropped.");
-        setLoading(false);
-      };
-
+      });
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "An unexpected error occurred."
+        err instanceof Error ? err.message : "Network connection to the pipeline dropped."
       );
       setLoading(false);
     }
@@ -81,6 +65,27 @@ export default function UrlInput() {
     e.preventDefault();
     await processUrl();
   };
+
+  // Signed-out state: gate the whole flow behind Google sign-in, since every
+  // /process call now requires an authenticated user (see AUDIT.md — the
+  // pipeline triggers real, billed LLM calls, so this can't be left open).
+  if (sessionStatus !== "loading" && !session) {
+    return (
+      <div className="card anim-fade-up" style={{ padding: "28px", textAlign: "center", display: "flex", flexDirection: "column", gap: "16px", alignItems: "center" }}>
+        <p style={{ margin: 0, color: "var(--text-secondary, #9AA3B2)", fontSize: 14 }}>
+          Sign in to find clips from a YouTube video.
+        </p>
+        <button
+          type="button"
+          onClick={() => signIn("google")}
+          className="btn btn-primary"
+          style={{ padding: "12px 28px" }}
+        >
+          Sign in with Google
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "24px", width: "100%" }}>
@@ -98,9 +103,9 @@ export default function UrlInput() {
             disabled={loading}
             suppressHydrationWarning
           />
-          <button 
-            id="submit-button" 
-            type="submit" 
+          <button
+            id="submit-button"
+            type="submit"
             disabled={!url.trim()}
             className="btn btn-primary"
             style={{ whiteSpace: "nowrap", height: "auto", padding: "14px 28px" }}

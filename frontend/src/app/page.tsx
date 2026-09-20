@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { useSession, signIn, signOut } from "next-auth/react";
 import UrlInput from "@/components/url-input";
 import WaitlistForm from "@/components/waitlist-form";
 
 export default function Home() {
+  const { data: session } = useSession();
   const [navScrolled, setNavScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const scoreRef = useRef<HTMLSpanElement>(null);
@@ -112,9 +114,20 @@ export default function Home() {
               </li>
             </ul>
             <div className="nav-actions anim-fade-in anim-delay-2">
-              <a href="#" className="btn btn-ghost">
-                Log in
-              </a>
+              {session ? (
+                <>
+                  <span style={{ fontSize: 13, color: "var(--text-secondary, #9AA3B2)" }}>
+                    {session.user?.name || session.user?.email}
+                  </span>
+                  <button onClick={() => signOut()} className="btn btn-ghost" style={{ cursor: "pointer" }}>
+                    Sign out
+                  </button>
+                </>
+              ) : (
+                <button onClick={() => signIn("google")} className="btn btn-ghost" style={{ cursor: "pointer" }}>
+                  Log in
+                </button>
+              )}
               <a href="#cta" className="btn btn-primary">
                 Get early access
               </a>

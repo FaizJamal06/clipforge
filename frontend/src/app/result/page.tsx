@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -347,6 +348,7 @@ function ClipCard({ clip, index, videoId }: { clip: ClipResult; index: number; v
 /* ─── Page ─── */
 export default function ResultPage() {
   const router = useRouter();
+  const { data: session } = useSession();
   const [result, setResult] = useState<ProcessResponse | null>(null);
   const [chunkOffset, setChunkOffset] = useState(0);
   const [url, setUrl] = useState("");
@@ -367,14 +369,22 @@ export default function ResultPage() {
 
   const loadMore = async () => {
     if (!url) return;
+    if (!session?.backendToken) {
+      setError("Your session expired — please sign in again.");
+      return;
+    }
     setLoading(true); setError(null);
     const nextOffset = chunkOffset + 1;
     try {
       const res = await fetch(`${API_BASE_URL}/api/v1/process`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.backendToken}`,
+        },
         body: JSON.stringify({ youtube_url: url, chunk_offset: nextOffset }),
       });
+      if (res.status === 401) throw new Error("Your session expired — please sign in again.");
       if (!res.ok) throw new Error(`API error: ${res.status}`);
       const data: ProcessResponse = await res.json();
       if (result) {
