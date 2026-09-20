@@ -18,9 +18,10 @@ class Settings(BaseSettings):
         debug: Enable debug mode (verbose logging, reloads).
         api_version: API version prefix for routes.
 
-        llm_api_key: API key for the LLM provider (OpenRouter).
-        llm_model: Model identifier for LLM calls.
-        llm_base_url: Base URL for the LLM API.
+        llm_api_key: Google AI Studio API key, used directly by ChatGoogleGenerativeAI
+            (see app/dependencies.py::get_llm_client). There is no provider abstraction —
+            this app only ever calls Google Gemini.
+        llm_model: Gemini model identifier for LLM calls (native ID, e.g. "gemini-2.5-flash").
         llm_max_retries: Maximum retries for LLM API calls.
 
         database_url: PostgreSQL connection string.
@@ -39,10 +40,11 @@ class Settings(BaseSettings):
     debug: bool = False
     api_version: str = "v1"
 
-    # LLM Provider (OpenRouter)
+    # LLM Provider — Google Gemini, called directly via langchain-google-genai.
+    # (There is no OpenRouter/OpenAI-compatible layer despite the naming; see
+    # app/dependencies.py::get_llm_client, which only ever constructs ChatGoogleGenerativeAI.)
     llm_api_key: str = ""
-    llm_model: str = "google/gemini-2.5-flash"
-    llm_base_url: str = "https://openrouter.ai/api/v1"
+    llm_model: str = "gemini-2.5-flash"
     llm_max_retries: int = 3
 
     # Database

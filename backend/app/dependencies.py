@@ -1,8 +1,9 @@
 """
 ClipForge AI — FastAPI Dependency Injection
 
-Provides shared dependencies (database, Redis, LLM client)
-injected into route handlers via FastAPI's Depends() system.
+Provides shared dependencies (LLM client) injected into route handlers via
+FastAPI's Depends() system. The database session dependency lives in
+app/database.py (get_db) — routes import it from there, not from here.
 """
 
 import logging
@@ -19,24 +20,6 @@ logger = logging.getLogger(__name__)
 def get_app_settings() -> Settings:
     """Dependency: returns the application settings instance."""
     return get_settings()
-
-
-async def get_db():
-    """Dependency: returns a database session.
-
-    TODO: Implement with SQLAlchemy async session in Phase 3.
-    Currently returns None as a placeholder.
-    """
-    yield None
-
-
-async def get_redis():
-    """Dependency: returns a Redis client connection.
-
-    TODO: Implement with redis-py async client in Phase 3.
-    Currently returns None — transcript caching will be skipped gracefully.
-    """
-    yield None
 
 
 @lru_cache()

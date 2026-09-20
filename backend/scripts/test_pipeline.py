@@ -34,16 +34,16 @@ async def main():
     
     for i, clip in enumerate(validated):
         print(f"\n--- Clip {i+1} ---")
-        print(f"Title: {getattr(clip, 'title', None)}")
-        print(f"Score: {getattr(clip, 'match_score', None)}")
-        print(f"Duration: {getattr(clip, 'end_time', 0) - getattr(clip, 'start_time', 0):.2f}s")
-        print(f"Hook: {getattr(clip, 'hook_text', None)}")
-        
-        plan = getattr(clip, 'editing_plan', None)
+        print(f"Title: {clip.get('title')}")
+        print(f"Score: {clip.get('match_score')}")
+        print(f"Duration: {clip.get('end_time', 0) - clip.get('start_time', 0):.2f}s")
+        print(f"Hook: {clip.get('hook_text')}")
+
+        plan = clip.get('editing_plan')
         if plan:
             print("Has Editing Plan: Yes")
-            segments = getattr(plan, 'segments', [])
-            broll_count = sum(1 for s in segments if getattr(s, 'visual_type', '') == 'broll')
+            segments = plan.get('segments', [])
+            broll_count = sum(1 for s in segments if s.get('visual_type') == 'broll')
             print(f"B-Roll count: {broll_count}")
 
 if __name__ == '__main__':

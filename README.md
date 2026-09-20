@@ -120,11 +120,12 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-Create a `.env` file in `backend/`:
+Create a `.env` file in `backend/` (see `.env.example` at the repo root for the full list of settings):
 
 ```env
-GOOGLE_API_KEY=your_google_ai_studio_key
-DATABASE_URL=sqlite+aiosqlite:///./clipforge.db
+LLM_API_KEY=your_google_ai_studio_key
+LLM_MODEL=gemini-2.5-flash
+DATABASE_URL=sqlite+aiosqlite:///./data/clipforge.db
 SUPADATA_API_KEY=your_supadata_api_key  # Highly recommended for robust transcript fetching
 YOUTUBE_PROXY=http://user:pass@proxy.com:8080 # Fallback proxy for youtube-transcript-api
 ```

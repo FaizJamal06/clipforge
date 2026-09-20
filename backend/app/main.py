@@ -4,6 +4,7 @@ ClipForge AI — FastAPI Application Entry Point
 Configures the FastAPI app with security middleware, CORS, routers, and health check.
 """
 
+import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -17,6 +18,14 @@ from app.models.waitlist import WaitlistEntry  # ensure table is created
 from app.middleware import RateLimitMiddleware, SecurityHeadersMiddleware, APIKeyMiddleware
 
 settings = get_settings()
+
+# Without this, every `logger.info/warning/error(...)` call throughout the app
+# (rate limiter, transcript fallback chain, discovery/validation progress, etc.)
+# has no attached handler under plain `uvicorn app.main:app` and is silently dropped.
+logging.basicConfig(
+    level=logging.DEBUG if settings.debug else logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
