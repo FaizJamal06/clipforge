@@ -26,9 +26,11 @@ class ClipForgeState(TypedDict):
         retry_count: Current validation retry attempt number.
         errors: Error log for debugging and observability.
         status: Current pipeline status (e.g., "processing", "completed", "failed").
+        user_id: ID of the authenticated user running this pipeline (scopes caches).
     """
 
     youtube_url: str
+    user_id: str
     video_id: str
     transcript: list[dict]
     transcript_chunks: list[str]

@@ -18,6 +18,8 @@ from sqlalchemy.future import select
 
 from app.database import get_db
 from app.models.video import ProcessedVideo
+from app.models.user import User
+from app.auth import get_current_user
 from app.graph.workflow import graph
 from app.services.transcript_service import TranscriptError
 from app.security import InputSanitizer, sanitize_error
@@ -142,8 +144,18 @@ def format_clips_from_state(final_state: dict) -> list[ClipResult]:
 # ----- Endpoints ----- #
 
 @router.get("/process/stream")
-async def stream_process_video(youtube_url: str, chunk_offset: int = 0, db: AsyncSession = Depends(get_db)):
-    """Server-Sent Events (SSE) endpoint for processing a video in real-time."""
+async def stream_process_video(
+    youtube_url: str,
+    chunk_offset: int = 0,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    """Server-Sent Events (SSE) endpoint for processing a video in real-time.
+
+    Requires a signed-in user (Authorization: Bearer <token>). Browsers' native
+    EventSource can't send custom headers, so the frontend reads this stream via
+    fetch()+ReadableStream instead — see frontend/src/lib/sse.ts.
+    """
     # Sanitize input
     try:
         youtube_url = InputSanitizer.sanitize_url(youtube_url)
@@ -154,9 +166,12 @@ async def stream_process_video(youtube_url: str, chunk_offset: int = 0, db: Asyn
         vid_id = extract_video_id(youtube_url)
         cache_key = f"{vid_id}_{chunk_offset}" if vid_id else f"unknown_{chunk_offset}"
 
-        # 1. Check Database Cache First
+        # 1. Check Database Cache First (scoped to this user)
         try:
-            stmt = select(ProcessedVideo).where(ProcessedVideo.video_id == cache_key)
+            stmt = select(ProcessedVideo).where(
+                ProcessedVideo.video_id == cache_key,
+                ProcessedVideo.user_id == user.id,
+            )
             result = await db.execute(stmt)
             cached_entry = result.scalar_one_or_none()
             
@@ -175,6 +190,7 @@ async def stream_process_video(youtube_url: str, chunk_offset: int = 0, db: Asyn
         # 2. Build initial state
         initial_state = {
             "youtube_url": youtube_url,
+            "user_id": user.id,
             "video_id": "",
             "transcript": [],
             "transcript_chunks": [],
@@ -214,6 +230,7 @@ async def stream_process_video(youtube_url: str, chunk_offset: int = 0, db: Asyn
                 try:
                     new_cache = ProcessedVideo(
                         video_id=cache_key,
+                        user_id=user.id,
                         youtube_url=youtube_url
                     )
                     new_cache.set_payload(response.model_dump())
@@ -241,7 +258,11 @@ async def stream_process_video(youtube_url: str, chunk_offset: int = 0, db: Asyn
 
 
 @router.post("/process", response_model=ProcessResponse)
-async def process_video(request: ProcessRequest, db: AsyncSession = Depends(get_db)):
+async def process_video(
+    request: ProcessRequest,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
     """Legacy blocking endpoint - Submit a YouTube URL for clip discovery."""
     # Sanitize input
     try:
@@ -254,9 +275,12 @@ async def process_video(request: ProcessRequest, db: AsyncSession = Depends(get_
     vid_id = extract_video_id(request.youtube_url)
     cache_key = f"{vid_id}_{request.chunk_offset}" if vid_id else f"unknown_{request.chunk_offset}"
 
-    # Check Database Cache First
+    # Check Database Cache First (scoped to this user)
     try:
-        stmt = select(ProcessedVideo).where(ProcessedVideo.video_id == cache_key)
+        stmt = select(ProcessedVideo).where(
+            ProcessedVideo.video_id == cache_key,
+            ProcessedVideo.user_id == user.id,
+        )
         result = await db.execute(stmt)
         cached_entry = result.scalar_one_or_none()
         
@@ -272,6 +296,7 @@ async def process_video(request: ProcessRequest, db: AsyncSession = Depends(get_
 
     initial_state = {
         "youtube_url": request.youtube_url,
+        "user_id": user.id,
         "video_id": "",
         "transcript": [],
         "transcript_chunks": [],
@@ -302,6 +327,7 @@ async def process_video(request: ProcessRequest, db: AsyncSession = Depends(get_
             if response.status not in ["failed", "completed_no_clips"] and not response.errors and response.video_id:
                 new_cache = ProcessedVideo(
                     video_id=cache_key,
+                    user_id=user.id,
                     youtube_url=request.youtube_url
                 )
                 new_cache.set_payload(response.model_dump())

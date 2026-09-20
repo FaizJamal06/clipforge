@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, DateTime
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.sql import func
 from app.database import Base
 import json
@@ -8,15 +8,22 @@ class ProcessedVideo(Base):
     Cache table to store the final output of the LangGraph AI processing.
     Instead of re-running expensive LLM operations for the same youtube_id,
     we can instantly serve the cached results.
+
+    Scoped per-user: two users requesting the same video each get their own
+    cache row (video_id here is really a "cache key" — see api/routes.py's
+    cache_key construction — not a bare YouTube video id).
     """
     __tablename__ = "processed_videos"
+    __table_args__ = (UniqueConstraint("user_id", "video_id", name="uq_processed_videos_user_video"),)
 
-    video_id = Column(String(50), primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(String(255), ForeignKey("users.id"), nullable=False, index=True)
+    video_id = Column(String(100), index=True, nullable=False)
     youtube_url = Column(String(255), nullable=False)
-    
+
     # Store the entire ProcessResponse output directly as a JSON string
     response_payload = Column(String, nullable=False)
-    
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     def set_payload(self, payload_dict: dict):

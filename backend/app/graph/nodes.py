@@ -112,7 +112,8 @@ def transcript_processing(state: ClipForgeState) -> dict:
 
 
 # In-memory cache for discovered clips to avoid 402 Token Limits on "Load More"
-# Maps video_id -> list of serialized candidate clips
+# Maps "user_id:video_id" -> list of serialized candidate clips, so two users
+# requesting the same video never see each other's cached results.
 DISCOVERY_CACHE: dict[str, list[dict]] = {}
 
 async def clip_discovery(state: ClipForgeState) -> dict:
@@ -123,6 +124,8 @@ async def clip_discovery(state: ClipForgeState) -> dict:
     transcript_chunks = state.get("transcript_chunks", [])
     chunk_offset = state.get("chunk_offset", 0)
     video_id = state.get("video_id", "")
+    user_id = state.get("user_id", "")
+    cache_key = f"{user_id}:{video_id}"
 
     if not transcript_chunks:
         return {
@@ -132,8 +135,8 @@ async def clip_discovery(state: ClipForgeState) -> dict:
         }
 
     # 1. Check if we already discovered clips for this video (Cache Hit)
-    if chunk_offset > 0 and video_id in DISCOVERY_CACHE:
-        cached_clips = DISCOVERY_CACHE[video_id]
+    if chunk_offset > 0 and cache_key in DISCOVERY_CACHE:
+        cached_clips = DISCOVERY_CACHE[cache_key]
         if chunk_offset < len(cached_clips):
             logger.info(f"Cache hit! Serving clip {chunk_offset+1} of {len(cached_clips)} from memory.")
             return {
@@ -154,11 +157,11 @@ async def clip_discovery(state: ClipForgeState) -> dict:
 
         # Convert Pydantic models to dicts for state
         all_candidate_clips = [clip.model_dump() for clip in result.clips]
-        
+
         # Save to cache
         if video_id:
-            DISCOVERY_CACHE[video_id] = all_candidate_clips
-            logger.info(f"Cached {len(all_candidate_clips)} discovered clips for video {video_id}")
+            DISCOVERY_CACHE[cache_key] = all_candidate_clips
+            logger.info(f"Cached {len(all_candidate_clips)} discovered clips for video {video_id} (user {user_id})")
 
         if not all_candidate_clips:
             return {

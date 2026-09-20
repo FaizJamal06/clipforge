@@ -79,6 +79,11 @@ class Settings(BaseSettings):
     rate_limit_per_minute: int = 20       # Max requests per IP per minute
     rate_limit_burst: int = 5             # Max burst requests in 2-second window
 
+    # User auth — shared HS256 secret with the frontend's Auth.js config
+    # (must be the exact same value as the frontend's AUTH_SECRET env var).
+    # Used to verify the JWT the frontend mints after a Google sign-in.
+    auth_secret: str = ""
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

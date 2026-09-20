@@ -13,6 +13,7 @@ from app.config import get_settings
 from app.api.routes import router as api_router
 from app.api.waitlist import router as waitlist_router
 from app.database import engine, Base
+from app.models.user import User  # ensure table is created
 from app.models.video import ProcessedVideo
 from app.models.waitlist import WaitlistEntry  # ensure table is created
 from app.middleware import RateLimitMiddleware, SecurityHeadersMiddleware, APIKeyMiddleware
