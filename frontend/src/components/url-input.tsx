@@ -130,6 +130,9 @@ export default function UrlInput() {
   };
 
   const isPro = !!session && plan === "pro";
+  // Pro users can flip to the visitor view to see exactly what a recruiter sees.
+  const [previewDemo, setPreviewDemo] = useState(false);
+  const demoView = !isPro || previewDemo;
 
   // Everyone gets the same paste bar. Free/signed-out visitors see the demo
   // video pre-loaded and "Find Clips" shows its cached result instantly (no
@@ -137,7 +140,7 @@ export default function UrlInput() {
   // enforced server-side too (402).
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isPro) await processUrl();
+    if (!demoView) await processUrl();
     else await openDemo();
   };
 
@@ -151,9 +154,9 @@ export default function UrlInput() {
             id="youtube-url-input"
             type="url"
             placeholder="Paste a YouTube URL..."
-            value={isPro ? url : DEMO_URL}
+            value={demoView ? DEMO_URL : url}
             onChange={(e) => setUrl(e.target.value)}
-            readOnly={!isPro}
+            readOnly={demoView}
             className="custom-input"
             style={{ flex: 1 }}
             suppressHydrationWarning
@@ -161,7 +164,7 @@ export default function UrlInput() {
           <button
             id="submit-button"
             type="submit"
-            disabled={isPro && !url.trim()}
+            disabled={!demoView && !url.trim()}
             className="btn btn-primary"
             style={{ whiteSpace: "nowrap", height: "auto", padding: "14px 28px" }}
             suppressHydrationWarning
@@ -171,7 +174,13 @@ export default function UrlInput() {
         </form>
       )}
 
-      {!isPro && !loading && (
+      {isPro && !loading && (
+        <button type="button" onClick={() => setPreviewDemo(!previewDemo)} style={{ alignSelf: "flex-start", background: "none", border: "none", padding: 0, cursor: "pointer", color: "var(--color-forge, #FF4F1F)", font: "inherit", fontSize: 13, textDecoration: "underline" }}>
+          {previewDemo ? "Back to my videos (Pro)" : "Preview demo mode"}
+        </button>
+      )}
+
+      {demoView && !loading && (
         <div className="card" style={{ display: "flex", gap: 16, alignItems: "center", padding: 12, textAlign: "left" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img

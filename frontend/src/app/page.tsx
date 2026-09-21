@@ -191,8 +191,8 @@ export default function Home() {
 
               <div style={{ display: "flex", flexDirection: "column", gap: "28px", marginTop: "40px" }} className="anim-fade-up anim-delay-3 w-full max-w-lg">
                 <div className="hero-actions" style={{ marginBottom: 0 }}>
-                  <a href="#cta" className="btn btn-primary btn-lg">
-                    Start clipping free
+                  <a href="#try" className="btn btn-primary btn-lg">
+                    Try the demo
                     <span>→</span>
                   </a>
                   <a href="#how" className="btn btn-secondary btn-lg">
@@ -200,13 +200,13 @@ export default function Home() {
                   </a>
                 </div>
 
-                <div className="w-full anim-fade-up anim-delay-4">
+                <div id="try" className="w-full anim-fade-up anim-delay-4">
                   <UrlInput />
                 </div>
               </div>
 
               <div className="hero-note anim-fade-in anim-delay-5" style={{ marginTop: "32px", marginBottom: "32px" }}>
-                No credit card. Free 5 clips per month. Cancel anytime.
+                Try the demo instantly, no sign-up needed. Pro unlocks your own videos.
               </div>
             </div>
 
