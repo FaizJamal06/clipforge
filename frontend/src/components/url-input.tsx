@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession, signIn } from "next-auth/react";
 
@@ -10,17 +10,6 @@ import { streamSSE } from "@/lib/sse";
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-const statusToStepMessage: Record<string, string> = {
-  initialized: "Initializing pipeline...",
-  transcript_downloaded: "Fetching YouTube transcript...",
-  transcript_processed: "Cleaning and removing filler words...",
-  clips_discovered: "AI scanning for viral hooks...",
-  clips_validated: "Evaluating retention dynamics...",
-  editing_plans_generated: "Generating frame-perfect blueprints...",
-  completed: "Finalizing clip extraction...",
-  failed: "Pipeline failed."
-};
-
 export default function UrlInput() {
   const router = useRouter();
   const { data: session, status: sessionStatus } = useSession();
@@ -28,9 +17,70 @@ export default function UrlInput() {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("initialized");
   const [error, setError] = useState<string | null>(null);
+  const [plan, setPlan] = useState<"free" | "pro" | null>(null);
+
+  const token = session?.backendToken;
+
+  // Ask the backend which plan this user is on. After a Stripe checkout
+  // (?upgraded=1) the webhook may land a moment later, so poll briefly.
+  useEffect(() => {
+    if (!token) return;
+    const justUpgraded = new URLSearchParams(window.location.search).has("upgraded");
+    let cancelled = false;
+    const load = async (attemptsLeft: number) => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/v1/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const me = await res.json();
+        if (cancelled) return;
+        setPlan(me.plan);
+        if (justUpgraded && me.plan !== "pro" && attemptsLeft > 0) {
+          setTimeout(() => load(attemptsLeft - 1), 2000);
+        }
+      } catch {
+        if (!cancelled) setPlan("free");
+      }
+    };
+    load(5);
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  const openDemo = async () => {
+    setError(null);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/v1/demo`);
+      if (!res.ok) throw new Error("Demo is unavailable right now.");
+      const data = await res.json();
+      sessionStorage.setItem("clipforge_latest_result", JSON.stringify(data));
+      sessionStorage.setItem("clipforge_latest_url", data.youtube_url);
+      sessionStorage.setItem("clipforge_latest_offset", "0");
+      sessionStorage.setItem("clipforge_demo", "1");
+      router.push("/result");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Demo is unavailable right now.");
+    }
+  };
+
+  const upgrade = async () => {
+    setError(null);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/v1/billing/checkout`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Could not start checkout.");
+      window.location.href = data.url;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not start checkout.");
+    }
+  };
 
   const processUrl = async () => {
-    if (!url.trim() || !session?.backendToken) return;
+    if (!url.trim() || !token) return;
 
     setLoading(true);
     setError(null);
@@ -39,13 +89,14 @@ export default function UrlInput() {
     try {
       const streamUrl = `${API_BASE_URL}/api/v1/process/stream?youtube_url=${encodeURIComponent(url)}&chunk_offset=0`;
 
-      await streamSSE(streamUrl, session.backendToken, (payload) => {
+      await streamSSE(streamUrl, token, (payload) => {
         if (payload.type === "update") {
           setStatus(payload.status as string);
         } else if (payload.type === "complete") {
           sessionStorage.setItem("clipforge_latest_result", JSON.stringify(payload.data));
           sessionStorage.setItem("clipforge_latest_url", url);
           sessionStorage.setItem("clipforge_latest_offset", "0");
+          sessionStorage.removeItem("clipforge_demo");
           router.push("/result");
         } else if (payload.type === "error") {
           const data = payload.data as { errors?: string[] } | undefined;
@@ -66,23 +117,33 @@ export default function UrlInput() {
     await processUrl();
   };
 
-  // Signed-out state: gate the whole flow behind Google sign-in, since every
-  // /process call now requires an authenticated user (see AUDIT.md — the
-  // pipeline triggers real, billed LLM calls, so this can't be left open).
-  if (sessionStatus !== "loading" && !session) {
+  if (sessionStatus === "loading" || (session && plan === null)) return null;
+
+  // Anyone can try the demo. Analyzing your own videos runs real, billed LLM
+  // calls, so it needs sign-in AND the Pro plan (enforced server-side too).
+  if (!session || plan !== "pro") {
     return (
       <div className="card anim-fade-up" style={{ padding: "28px", textAlign: "center", display: "flex", flexDirection: "column", gap: "16px", alignItems: "center" }}>
         <p style={{ margin: 0, color: "var(--text-secondary, #9AA3B2)", fontSize: 14 }}>
-          Sign in to find clips from a YouTube video.
+          {session
+            ? "You're on the free plan. Explore a sample result, or upgrade to analyze your own videos."
+            : "See a real sample result instantly, or sign in to unlock your own videos."}
         </p>
-        <button
-          type="button"
-          onClick={() => signIn("google")}
-          className="btn btn-primary"
-          style={{ padding: "12px 28px" }}
-        >
-          Sign in with Google
-        </button>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
+          <button type="button" onClick={openDemo} className="btn btn-primary" style={{ padding: "12px 28px" }}>
+            Try demo
+          </button>
+          {session ? (
+            <button type="button" onClick={upgrade} className="btn btn-secondary" style={{ padding: "12px 28px" }}>
+              Upgrade to Pro
+            </button>
+          ) : (
+            <button type="button" onClick={() => signIn("google")} className="btn btn-secondary" style={{ padding: "12px 28px" }}>
+              Sign in with Google
+            </button>
+          )}
+        </div>
+        {error && <p style={{ color: "#FF4F6E", fontSize: 13, margin: 0 }}>{error}</p>}
       </div>
     );
   }
@@ -117,9 +178,7 @@ export default function UrlInput() {
       )}
 
       {/* Loading State Container */}
-      {loading && (
-        <LoadingTerminal status={status} />
-      )}
+      {loading && <LoadingTerminal status={status} />}
 
       {/* Error Display */}
       {error && !loading && (

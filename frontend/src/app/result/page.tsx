@@ -354,8 +354,10 @@ export default function ResultPage() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isDemo, setIsDemo] = useState(false);
 
   useEffect(() => {
+    setIsDemo(sessionStorage.getItem("clipforge_demo") === "1");
     const raw = sessionStorage.getItem("clipforge_latest_result");
     const storedUrl = sessionStorage.getItem("clipforge_latest_url");
     const storedOffset = sessionStorage.getItem("clipforge_latest_offset");
@@ -484,6 +486,17 @@ export default function ResultPage() {
             </span>
           </div>
 
+          {isDemo && (
+            <div className="anim-fade-up" style={{
+              padding: 16, marginBottom: 20, borderRadius: 12,
+              border: "1px solid rgba(255,79,31,0.4)", background: "rgba(255,79,31,0.06)",
+            }}>
+              <p style={{ fontSize: 13, margin: 0, color: "var(--text-primary)" }}>
+                This is a pre-generated demo result. Upgrade to Pro on the home page to analyze your own videos.
+              </p>
+            </div>
+          )}
+
           {/* Error */}
           {error && (
             <div className="anim-fade-up" style={{
@@ -512,7 +525,7 @@ export default function ResultPage() {
             )}
 
             {/* Load more */}
-            {result.status !== "failed" && result.clips.length > 0 && (
+            {!isDemo && result.status !== "failed" && result.clips.length > 0 && (
               <button onClick={loadMore} disabled={loading} className="btn btn-secondary"
                 style={{ width: "100%", padding: "18px 0", fontSize: 14, marginTop: 8,
                   borderRadius: 14 }}>
