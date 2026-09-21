@@ -1,191 +1,67 @@
 {
   "status": "completed",
-  "youtube_url": "https://youtu.be/jEnxvZXzo0E",
+  "youtube_url": "https://youtu.be/jEnxvZXzo0E?si=6QwpuSrWiQ-oUxBC",
   "video_id": "jEnxvZXzo0E",
   "clips": [
     {
-      "clip_text": "Now, why is this useful? This also this attribution problem exists in life also. How many of you think your degrees got you here? Can we turn one of the cameras to the people? Zero. They're all making money. Then why did you do the degree? So you're telling me what is the average cost of the degree guys in this room? 510 lakhs peranom roughly. Give me some numbers. Huh? 10 to 12 >> 10 to 12 lakhs. How much are your degrees? >> 15 10 or below. So you're telling me that",
-      "start_time": 0.0,
-      "end_time": 0.0,
+      "clip_text": "How many of you think hard work leads to success? It's an attribution thing, right? Like we've heard it so much. Hard work leads to success, right? Here's what I think. I think it's one of the factors, but definitely not the only factor. Otherwise, laborers will be very wealthy. Anyone doing manual effort, the oil rigging people, there's so many people doing hard work in the world. Clearly, hard work is not that correlated with financially financial success. But if you look at actual people who are successful, a lot of them also work hard. So it might be one of the factors definitely not the only factor. So whenever somebody sometimes your parents say right if you work very very hard you'll become very successful. I don't think that's true. And I think it's bad advice to give people. It should be like hard work is one of the conditions but there's other things that you're missing that other things you need to attribute to that is responsible for your success.",
+      "start_time": 540.0,
+      "end_time": 590.0,
       "duration": 50.0,
-      "virality_score": 7.0,
-      "virality_reasoning": "",
-      "hook": "",
-      "payoff": "",
+      "virality_score": 9.0,
+      "virality_reasoning": "This clip presents a strong contrarian take on the universally accepted idea that 'hard work leads to success,' offering a fresh perspective with relatable examples. It's highly quotable and likely to spark debate and discussion among viewers.",
+      "hook": "How many of you think hard work leads to success? It's an attribution thing, right? Like we've heard it so much. Hard work leads to success, right? Here's what I think. I think it's one of the factors, but definitely not the only factor.",
+      "payoff": "I don't think that's true. And I think it's bad advice to give people. It should be like hard work is one of the conditions but there's other things that you're missing that other things you need to attribute to that is responsible for your success.",
       "editing_plan": {
-        "title_suggestion": "Your Degree Didn't Get You Here? The TRUTH!",
-        "hook_strategy": "Start with a tight, slightly off-center shot of the speaker, then a rapid punch zoom on the word 'degrees' as he asks the question. A bold, animated text overlay 'Did your degree REALLY get you here?' flashes on screen, accompanied by a quick, sharp sound effect to grab immediate attention.",
+        "title_suggestion": "Hard Work DOESN'T Guarantee Success? The TRUTH!",
+        "hook_strategy": "Start with a direct, slightly zoomed-in shot of the speaker asking the question, 'How many of you think hard work leads to success?' Use a quick, sharp sound effect (like a 'whoosh' or 'ding') as the question appears on screen, with the key phrase 'hard work leads to success' highlighted in a contrasting color. A subtle, fast punch-zoom on the speaker's face to emphasize the direct address.",
         "segments": [
           {
-            "timestamp": "0:00-0:02",
+            "timestamp": "0:00-0:05",
             "visual_type": "talking_head",
-            "broll_idea": "",
-            "caption_text": "Why is this useful?",
-            "editing_note": "Quick cut, slightly wider shot of speaker."
+            "broll_idea": "N/A",
+            "caption_text": "Hard work leads to success?",
+            "editing_note": "Quick zoom in on speaker, bold text overlay for question, sharp cut to next segment."
           },
           {
-            "timestamp": "0:02-0:05",
+            "timestamp": "0:05-0:10",
             "visual_type": "talking_head",
-            "broll_idea": "",
-            "caption_text": "The 'attribution problem' exists in life.",
-            "editing_note": "Slight push-in on speaker, serious tone."
+            "broll_idea": "N/A",
+            "caption_text": "It's one factor, but NOT the ONLY factor.",
+            "editing_note": "Slight camera push-in, dramatic pause before 'NOT the ONLY factor', emphasize 'NOT' with a text animation."
           },
           {
-            "timestamp": "0:05-0:08",
-            "visual_type": "talking_head",
-            "broll_idea": "",
-            "caption_text": "How many think degrees got you here?",
-            "editing_note": "Punch zoom on speaker's face, intense eye contact."
-          },
-          {
-            "timestamp": "0:08-0:10",
+            "timestamp": "0:10-0:20",
             "visual_type": "broll",
-            "broll_idea": "Quick cut to a diverse group of successful-looking professionals (e.g., in a modern office, a startup space) shaking their heads 'no' or shrugging, looking unimpressed.",
-            "caption_text": "ZERO.",
-            "editing_note": "Fast cut to B-roll, quick pan across faces, dramatic sound effect."
+            "broll_idea": "Cinematic shots of various manual laborers: a construction worker sweating, an oil rig worker in harsh conditions, a farmer tilling fields. Show effort, but not luxury.",
+            "caption_text": "Otherwise, laborers would be VERY wealthy.",
+            "editing_note": "Fast cuts between different B-roll scenes. Upbeat, slightly melancholic background music. Text appears with a subtle bounce."
           },
           {
-            "timestamp": "0:10-0:12",
+            "timestamp": "0:20-0:30",
+            "visual_type": "mixed",
+            "broll_idea": "Quick cuts between speaker and B-roll of a person working diligently at a modern desk, then a shot of a luxury car or a high-rise building.",
+            "caption_text": "Hard work isn't correlated with financial success.",
+            "editing_note": "Return to speaker for 'not that correlated', then quick B-roll to illustrate 'financial success'. Punch zoom on speaker for 'not that correlated'."
+          },
+          {
+            "timestamp": "0:30-0:40",
             "visual_type": "talking_head",
-            "broll_idea": "",
-            "caption_text": "They're all making money.",
-            "editing_note": "Return to speaker, confident nod, slight smile."
+            "broll_idea": "N/A",
+            "caption_text": "It's BAD advice to give people.",
+            "editing_note": "Speaker with a serious, direct expression. Text 'BAD advice' flashes briefly. A subtle, low-frequency sound effect to underscore the statement."
           },
           {
-            "timestamp": "0:12-0:14",
-            "visual_type": "talking_head",
-            "broll_idea": "",
-            "caption_text": "Then why did you do the degree?",
-            "editing_note": "Dramatic pause, speaker leans in, curious expression. Slow zoom out."
-          },
-          {
-            "timestamp": "0:14-0:17",
-            "visual_type": "broll",
-            "broll_idea": "B-roll of a student looking stressed at a laptop with a university website showing tuition fees, or a stack of bills/student loan statements.",
-            "caption_text": "What's the average cost?",
-            "editing_note": "Quick cut to B-roll, slightly shaky cam for tension, question mark graphic overlay."
-          },
-          {
-            "timestamp": "0:17-0:20",
-            "visual_type": "talking_head",
-            "broll_idea": "",
-            "caption_text": "5-10 lakhs per annum?",
-            "editing_note": "Return to speaker, raised eyebrow, skeptical look. Quick text animation for numbers."
-          },
-          {
-            "timestamp": "0:20-0:22",
-            "visual_type": "talking_head",
-            "broll_idea": "",
-            "caption_text": "Give me some numbers. Huh?",
-            "editing_note": "Speaker gestures to audience, expectant look. Quick cuts between speaker and imagined audience."
-          },
-          {
-            "timestamp": "0:22-0:25",
-            "visual_type": "broll",
-            "broll_idea": "B-roll of a calculator displaying a large number (e.g., 1,200,000) or a hand counting a stack of money, then a quick cut to a student looking overwhelmed.",
-            "caption_text": "10 to 12 lakhs!",
-            "editing_note": "Fast cut to B-roll, dramatic sound effect, large number graphic."
-          },
-          {
-            "timestamp": "0:25-0:28",
-            "visual_type": "talking_head",
-            "broll_idea": "",
-            "caption_text": "How much are your degrees? 15, 10 or below.",
-            "editing_note": "Return to speaker, quick cuts, slightly faster delivery, showing rapid audience interaction."
-          },
-          {
-            "timestamp": "0:28-0:30",
-            "visual_type": "talking_head",
-            "broll_idea": "",
-            "caption_text": "So you're telling me that...",
-            "editing_note": "Speaker leans back slightly, a knowing look, building anticipation for the next thought. Hold shot for a beat."
+            "timestamp": "0:40-0:50",
+            "visual_type": "mixed",
+            "broll_idea": "Speaker explaining, then B-roll montage: a person networking at an event, someone reading a book on strategy, a person meditating or reflecting, a hand drawing a complex diagram.",
+            "caption_text": "Hard work is a condition, but other factors are missing.",
+            "editing_note": "Start with speaker, then transition to B-roll with quick, inspiring cuts. Upbeat, thoughtful music. Text highlights 'other factors'."
           }
         ],
-        "caption_style": "Dynamic, bold white text with a thin black outline and subtle shadow. Words animate in quickly (e.g., pop-up or slide-in) and disappear just as fast. Key phrases or numbers are highlighted with a contrasting color (e.g., yellow or red) for emphasis.",
-        "pacing_notes": "Aggressive, fast-paced editing with frequent jump cuts (every 1-3 seconds). Use punch zooms on key words like 'degrees', 'zero', 'cost', 'lakhs'. Incorporate dramatic pauses after questions to build tension. Music should be a mix of inquisitive, slightly suspenseful, and then a quick, punchy beat drop for reveals. Emotional pacing shifts from questioning to revelation.",
-        "call_to_action": "Was your degree worth it? Share your story in the comments! \ud83d\udc47 #DegreeDebate #EducationCost #CareerTruth"
-      }
-    },
-    {
-      "clip_text": "Do you know that Nike lost $25 billion in one day in market valuation just by trying to make everything data driven? Nike invested billions into something that was less effective but easier to measure versus something that was more effective but less easy to measure. Do you know Nike changed as a brand earlier they used to do these you know they used to get the best athletes and make them you know show they used to celebrate running they used to celebrate sports but they switched and they said no we'll go very tactical we'll go very measured and obviously it became a less aspirational brand the minute you make everything measurable and you're trying to sell sell",
-      "start_time": 0.0,
-      "end_time": 0.0,
-      "duration": 50.0,
-      "virality_score": 7.0,
-      "virality_reasoning": "",
-      "hook": "",
-      "payoff": "",
-      "editing_plan": {
-        "title_suggestion": "Nike Lost $25 BILLION: The Data-Driven Mistake",
-        "hook_strategy": "Start with a tight, slightly off-center shot of the speaker. As they say \"Nike lost $25 billion,\" a quick, sharp punch zoom into their eyes, accompanied by a dramatic, low-frequency sound effect (like a deep thud or a quick, sharp bass drop). The text '$25 BILLION' flashes boldly on screen for 1 second.",
-        "segments": [
-          {
-            "timestamp": "0:00-0:04",
-            "visual_type": "talking_head",
-            "broll_idea": "",
-            "caption_text": "Nike lost $25 BILLION in ONE DAY.",
-            "editing_note": "Punch zoom on speaker, dramatic sound effect, bold text overlay for '$25 BILLION'. Fast cut."
-          },
-          {
-            "timestamp": "0:04-0:08",
-            "visual_type": "broll",
-            "broll_idea": "Montage: stock market ticker crashing, abstract data visualizations, a person looking stressed at multiple screens with graphs.",
-            "caption_text": "Trying to make EVERYTHING data-driven.",
-            "editing_note": "Quick cuts, intense, slightly desaturated B-roll. Build tension with sound design."
-          },
-          {
-            "timestamp": "0:08-0:14",
-            "visual_type": "talking_head",
-            "broll_idea": "",
-            "caption_text": "Invested in less effective, easier to measure.",
-            "editing_note": "Return to speaker, slight zoom out. Emphasize 'less effective' with a subtle head shake."
-          },
-          {
-            "timestamp": "0:14-0:19",
-            "visual_type": "broll",
-            "broll_idea": "Split screen: Left side: generic product shot with sales numbers overlay. Right side: a lone runner pushing through a difficult terrain, looking determined (more abstract, emotional).",
-            "caption_text": "Vs. more effective, harder to measure.",
-            "editing_note": "Visual contrast, quick cuts between the two sides. Music shifts slightly to more inspiring on the right."
-          },
-          {
-            "timestamp": "0:19-0:24",
-            "visual_type": "talking_head",
-            "broll_idea": "",
-            "caption_text": "Nike changed as a brand.",
-            "editing_note": "Speaker, slightly wider shot. Pacing picks up slightly, a sense of revelation."
-          },
-          {
-            "timestamp": "0:24-0:32",
-            "visual_type": "broll",
-            "broll_idea": "Montage of iconic, old Nike ads: Michael Jordan flying, athletes pushing limits, people joyfully running, 'Just Do It' slogan in classic font. Focus on emotion and aspiration.",
-            "caption_text": "Used to celebrate running, celebrate sports.",
-            "editing_note": "Uplifting, inspiring music. Smooth, cinematic cuts. Nostalgic feel."
-          },
-          {
-            "timestamp": "0:32-0:38",
-            "visual_type": "talking_head",
-            "broll_idea": "",
-            "caption_text": "But they switched: very tactical, very measured.",
-            "editing_note": "Return to speaker, slight punch zoom on 'switched'. Tone becomes more critical."
-          },
-          {
-            "timestamp": "0:38-0:45",
-            "visual_type": "broll",
-            "broll_idea": "Montage of modern, sterile Nike ads: product shots with price tags, data dashboards, people looking at phones, generic gym scenes. Less emotion, more direct sales.",
-            "caption_text": "Became a less aspirational brand.",
-            "editing_note": "Music shifts to a more neutral, almost clinical tone. Faster, less emotional cuts. Visuals feel less inspiring."
-          },
-          {
-            "timestamp": "0:45-0:50",
-            "visual_type": "talking_head",
-            "broll_idea": "",
-            "caption_text": "When you make everything measurable, you just sell, sell, sell.",
-            "editing_note": "Speaker returns, slightly closer shot. Emphasize 'sell, sell, sell' with a quick, repetitive zoom or visual stutter. Final impactful statement."
-          }
-        ],
-        "caption_style": "Dynamic, bold white text with a black outline/shadow. Key words highlighted in yellow or a contrasting brand color. Appears and disappears quickly, synchronized with speech, often with a subtle bounce or pop animation.",
-        "pacing_notes": "Rapid-fire cuts throughout, especially during B-roll segments. Utilize punch zooms on key phrases and numbers for emphasis. Dramatic pauses are minimal, used only for impact after a major statement. Music starts with a dramatic, attention-grabbing sound, shifts to inspiring for old Nike, then to a more neutral/disappointing tone for the 'new' Nike, ending on a thought-provoking note. Overall fast, high-energy pacing.",
-        "call_to_action": "What do YOU think? Did Nike lose its soul chasing data? \ud83d\udc47 Comment below!"
+        "caption_style": "Dynamic, bold, sans-serif font (e.g., Montserrat or Poppins), with key words highlighted in a contrasting brand color. Text should animate on screen quickly, often word-by-word or phrase-by-phrase, with a subtle shadow for readability.",
+        "pacing_notes": "Aggressive pacing with frequent jump cuts every 1-3 seconds. Utilize punch zooms on the speaker for emphasis on key statements. Speed ramps can be used subtly on B-roll transitions for a dynamic feel. Music should start with a curious, slightly mysterious tone, building to a more assertive, insightful feel towards the end. Emotional pacing should shift from questioning to challenging to enlightening.",
+        "call_to_action": "Do you agree? 🤔 What 'other factors' do YOU think are crucial for success? Share your thoughts below! 👇"
       }
     }
   ],

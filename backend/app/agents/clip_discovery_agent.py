@@ -22,15 +22,25 @@ logger = logging.getLogger(__name__)
 # ----- Structured Output Schema ----- #
 
 class DiscoveredClip(BaseModel):
-    """Schema for a single discovered clip candidate."""
+    """Schema for a single discovered clip candidate.
+
+    Fields keep defaults (Gemini fails the whole batch if a *required* field is
+    skipped); completeness is checked afterwards by is_complete() and the batch
+    is retried instead.
+    """
     clip_text: str = Field(description="Exact verbatim text from the transcript.")
-    start_time: float = Field(default=0.0, description="Estimated start timestamp in seconds.")
-    end_time: float = Field(default=0.0, description="Estimated end timestamp in seconds.")
+    start_time: float = Field(default=0.0, description="Start timestamp in seconds, from the [MM:SS] markers in the transcript.")
+    end_time: float = Field(default=0.0, description="End timestamp in seconds, from the [MM:SS] markers in the transcript.")
     duration: float = Field(default=50.0, description="Clip duration in seconds (should be 40-60).")
-    virality_score: float = Field(default=7.0, description="Virality score from 1-10.")
-    virality_reasoning: str = Field(default="", description="Explanation of why this clip is likely to go viral.")
-    hook: str = Field(default="", description="The opening hook that grabs attention.")
-    payoff: str = Field(default="", description="The satisfying conclusion or punchline.")
+    virality_score: float = Field(default=7.0, description="Virality score from 1-10; use the full range.")
+    virality_reasoning: str = Field(default="", description="One or two sentences on why this clip is likely to go viral.")
+    hook: str = Field(default="", description="The opening line or moment that grabs attention (quote it).")
+    payoff: str = Field(default="", description="The satisfying conclusion or punchline (quote it).")
+
+
+def is_complete(clip: DiscoveredClip) -> bool:
+    """True if the model actually filled in the fields it tends to skip."""
+    return clip.end_time > clip.start_time and bool(clip.hook.strip()) and bool(clip.virality_reasoning.strip())
 
 
 class ClipDiscoveryOutput(BaseModel):
@@ -53,6 +63,8 @@ RULES:
 3. Each clip MUST be 40-60 seconds in duration (estimate based on ~150 words per minute speaking rate).
 4. Each clip MUST contain a strong HOOK (attention-grabbing opening) and a PAYOFF (satisfying conclusion).
 5. Use the timestamps provided in [MM:SS] format to estimate start_time and end_time in seconds.
+6. Fill in EVERY field for EVERY clip: clip_text, start_time, end_time, duration, virality_score,
+   virality_reasoning, hook, payoff. Never omit a field and never leave one empty.
 
 VIRAL CRITERIA (ranked by importance):
 - Emotional peaks (surprise, humor, outrage, awe)
@@ -131,6 +143,11 @@ async def run(transcript_chunks: list[str], llm: BaseChatModel) -> ClipDiscovery
                 result = await chain.ainvoke({"transcript_chunks": batch_text})
 
                 clips = result.clips if getattr(result, "clips", None) else []
+                complete = [c for c in clips if is_complete(c)]
+                if len(complete) < len(clips) and attempt < 2:
+                    logger.warning(f"{label}: {len(clips) - len(complete)} incomplete clip(s), retrying")
+                    continue
+                clips = complete  # last attempt: drop clips the model left half-empty
                 all_candidate_clips.extend(clips)
                 logger.info(f"{label}: found {len(clips)} clips")
                 break  # Success — move to next batch
@@ -152,6 +169,14 @@ async def run(transcript_chunks: list[str], llm: BaseChatModel) -> ClipDiscovery
                         "check your API plan. Skipping batch."
                     )
                     break
+                elif "503" in error_str or "UNAVAILABLE" in error_str:
+                    # Gemini overloaded (temporary) — back off and retry.
+                    wait = 10 * (attempt + 1)
+                    logger.warning(f"{label}: model unavailable (503), retrying in {wait}s")
+                    await asyncio.sleep(wait)
+                elif "Failed to parse" in error_str or "validation error" in error_str:
+                    # Model returned JSON missing required fields — a retry usually fixes it.
+                    logger.warning(f"{label}: malformed model output, retrying")
                 else:
                     break  # Non-retryable error
 

@@ -84,3 +84,11 @@ async def test_validate_hallucinated_clip():
     }]
     result = await validate(clips, transcript)
     assert result.results[0].transcript_match is False
+
+
+def test_discovery_is_complete_flags_default_filled_clips():
+    from app.agents.clip_discovery_agent import DiscoveredClip, is_complete
+    empty = DiscoveredClip(clip_text="x")  # what Gemini returns when it skips fields
+    full = DiscoveredClip(clip_text="x", start_time=10, end_time=60, hook="h", virality_reasoning="r")
+    assert not is_complete(empty)
+    assert is_complete(full)
