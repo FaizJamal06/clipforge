@@ -32,6 +32,11 @@ export default function UrlInput() {
         const res = await fetch(`${API_BASE_URL}/api/v1/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        if (res.status === 401) {
+          // Backend token expired (they last ~1h) — get a fresh one.
+          if (!cancelled) signIn("google");
+          return;
+        }
         const me = await res.json();
         if (cancelled) return;
         setPlan(me.plan);
