@@ -82,3 +82,17 @@ async def get_current_user(
     await db.commit()
     await db.refresh(user)
     return user
+
+
+def is_pro(user: User) -> bool:
+    return user.plan == "pro" or user.email in get_settings().pro_emails
+
+
+async def require_pro(user: User = Depends(get_current_user)) -> User:
+    """Dependency for the paid product: signed in AND on the Pro plan."""
+    if not is_pro(user):
+        raise HTTPException(
+            status_code=status.HTTP_402_PAYMENT_REQUIRED,
+            detail="Upgrade to Pro to analyze your own videos. Try the demo for free.",
+        )
+    return user

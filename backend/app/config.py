@@ -84,6 +84,13 @@ class Settings(BaseSettings):
     # Used to verify the JWT the frontend mints after a Google sign-in.
     auth_secret: str = ""
 
+    # Billing (Stripe, test mode is fine for a portfolio demo)
+    stripe_secret_key: str = ""
+    stripe_webhook_secret: str = ""
+    stripe_price_id: str = ""             # a one-time Price created in the Stripe dashboard
+    frontend_url: str = "http://localhost:3000"  # where Stripe sends users back to
+    pro_emails: list[str] = []            # accounts that get Pro without paying (e.g. the owner)
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"

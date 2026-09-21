@@ -10,6 +10,7 @@ Covers:
 
 import os
 import sys
+from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone
 
 import jwt
@@ -164,3 +165,60 @@ class TestPerUserCacheIsolation:
         rows = result.scalars().all()
         assert len(rows) == 1
         assert rows[0].user_id == "user-x"
+
+
+class TestPaywall:
+    """Free users are blocked from the paid endpoints; the demo stays public."""
+
+    @staticmethod
+    @asynccontextmanager
+    async def _client():
+        from httpx import AsyncClient, ASGITransport
+        from app.main import app
+        from app.database import get_db
+
+        async def override_get_db():
+            async with _TestSession() as session:
+                yield session
+
+        previous = app.dependency_overrides.get(get_db)
+        app.dependency_overrides[get_db] = override_get_db
+        try:
+            async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
+                yield c
+        finally:  # don't clobber the override other test modules rely on
+            if previous is None:
+                app.dependency_overrides.pop(get_db, None)
+            else:
+                app.dependency_overrides[get_db] = previous
+
+    @pytest.mark.asyncio
+    async def test_free_user_gets_402_on_process(self, db_session):
+        token = make_token(sub="free-user", email="free@example.com")
+        async with self._client() as c:
+            res = await c.post(
+                "/api/v1/process",
+                json={"youtube_url": "https://youtu.be/dQw4w9WgXcQ"},
+                headers={"Authorization": f"Bearer {token}"},
+            )
+        assert res.status_code == 402
+
+    @pytest.mark.asyncio
+    async def test_demo_is_public_and_has_clips(self, db_session):
+        async with self._client() as c:
+            res = await c.get("/api/v1/demo")
+        assert res.status_code == 200
+        assert len(res.json()["clips"]) > 0
+
+    @pytest.mark.asyncio
+    async def test_me_reports_free_plan(self, db_session):
+        token = make_token(sub="free-user-2", email="free2@example.com")
+        async with self._client() as c:
+            res = await c.get("/api/v1/me", headers={"Authorization": f"Bearer {token}"})
+        assert res.json()["plan"] == "free"
+
+    @pytest.mark.asyncio
+    async def test_is_pro_by_plan_flag(self, db_session):
+        from app.auth import is_pro
+        assert is_pro(User(id="x", email="x@example.com", plan="pro"))
+        assert not is_pro(User(id="y", email="y@example.com", plan="free"))

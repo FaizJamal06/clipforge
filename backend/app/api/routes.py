@@ -10,6 +10,7 @@ import logging
 import urllib.parse
 import json
 import asyncio
+from pathlib import Path
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
@@ -19,7 +20,7 @@ from sqlalchemy.future import select
 from app.database import get_db
 from app.models.video import ProcessedVideo
 from app.models.user import User
-from app.auth import get_current_user
+from app.auth import get_current_user, require_pro, is_pro
 from app.graph.workflow import graph
 from app.services.transcript_service import TranscriptError
 from app.security import InputSanitizer, sanitize_error
@@ -143,12 +144,26 @@ def format_clips_from_state(final_state: dict) -> list[ClipResult]:
 
 # ----- Endpoints ----- #
 
+DEMO_PATH = Path(__file__).resolve().parent.parent / "demo" / "sample_result.json"
+
+
+@router.get("/demo", response_model=ProcessResponse)
+async def demo_result():
+    """Public, pre-generated sample result. Never calls the LLM, so it costs nothing."""
+    return json.loads(DEMO_PATH.read_text(encoding="utf-8"))
+
+
+@router.get("/me")
+async def me(user: User = Depends(get_current_user)):
+    return {"email": user.email, "name": user.name, "plan": "pro" if is_pro(user) else "free"}
+
+
 @router.get("/process/stream")
 async def stream_process_video(
     youtube_url: str,
     chunk_offset: int = 0,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_pro),
 ):
     """Server-Sent Events (SSE) endpoint for processing a video in real-time.
 
@@ -261,7 +276,7 @@ async def stream_process_video(
 async def process_video(
     request: ProcessRequest,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_pro),
 ):
     """Legacy blocking endpoint - Submit a YouTube URL for clip discovery."""
     # Sanitize input

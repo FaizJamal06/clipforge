@@ -19,6 +19,9 @@ pydantic-settings>=2.7.0
 # Auth — verifies the JWT minted by the frontend's Auth.js after Google sign-in
 pyjwt>=2.10.0
 
+# Billing
+stripe>=10.0.0
+
 # Environment
 python-dotenv>=1.0.0
 
