@@ -165,7 +165,7 @@ export default function UrlInput() {
             id="submit-button"
             type="submit"
             disabled={!demoView && !url.trim()}
-            className="btn btn-primary"
+            className={`btn btn-primary ${demoView ? "cta-pulse" : ""}`}
             style={{ whiteSpace: "nowrap", height: "auto", padding: "14px 28px" }}
             suppressHydrationWarning
           >
