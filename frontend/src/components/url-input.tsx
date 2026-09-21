@@ -7,6 +7,8 @@ import { useSession, signIn } from "next-auth/react";
 import LoadingTerminal from "./loading-terminal";
 import { streamSSE } from "@/lib/sse";
 
+const DEMO_URL = "https://youtu.be/jEnxvZXzo0E";
+
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -117,62 +119,39 @@ export default function UrlInput() {
     }
   };
 
+  const isPro = !!session && plan === "pro";
+
+  // Everyone gets the same paste bar. Free/signed-out visitors see the demo
+  // video pre-loaded and "Find Clips" shows its cached result instantly (no
+  // LLM cost). Only Pro users can edit the URL and run the real pipeline —
+  // enforced server-side too (402).
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await processUrl();
+    if (isPro) await processUrl();
+    else await openDemo();
   };
 
-  if (sessionStatus === "loading" || (session && plan === null)) return null;
-
-  // Anyone can try the demo. Analyzing your own videos runs real, billed LLM
-  // calls, so it needs sign-in AND the Pro plan (enforced server-side too).
-  if (!session || plan !== "pro") {
-    return (
-      <div className="card anim-fade-up" style={{ padding: "28px", textAlign: "center", display: "flex", flexDirection: "column", gap: "16px", alignItems: "center" }}>
-        <p style={{ margin: 0, color: "var(--text-secondary, #9AA3B2)", fontSize: 14 }}>
-          {session
-            ? "You're on the free plan. Explore a sample result, or upgrade to analyze your own videos."
-            : "See a real sample result instantly, or sign in to unlock your own videos."}
-        </p>
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
-          <button type="button" onClick={openDemo} className="btn btn-primary" style={{ padding: "12px 28px" }}>
-            Try demo
-          </button>
-          {session ? (
-            <button type="button" onClick={upgrade} className="btn btn-secondary" style={{ padding: "12px 28px" }}>
-              Upgrade to Pro
-            </button>
-          ) : (
-            <button type="button" onClick={() => signIn("google")} className="btn btn-secondary" style={{ padding: "12px 28px" }}>
-              Sign in with Google
-            </button>
-          )}
-        </div>
-        {error && <p style={{ color: "#FF4F6E", fontSize: 13, margin: 0 }}>{error}</p>}
-      </div>
-    );
-  }
+  if (sessionStatus === "loading") return null;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "24px", width: "100%" }}>
-      {/* URL Input Form - Hide while loading to focus on terminal */}
+    <div style={{ display: "flex", flexDirection: "column", gap: "16px", width: "100%" }}>
       {!loading && (
         <form onSubmit={handleSubmit} style={{ display: "flex", gap: "12px", width: "100%" }}>
           <input
             id="youtube-url-input"
             type="url"
             placeholder="Paste a YouTube URL..."
-            value={url}
+            value={isPro ? url : DEMO_URL}
             onChange={(e) => setUrl(e.target.value)}
+            readOnly={!isPro}
             className="custom-input"
             style={{ flex: 1 }}
-            disabled={loading}
             suppressHydrationWarning
           />
           <button
             id="submit-button"
             type="submit"
-            disabled={!url.trim()}
+            disabled={isPro && !url.trim()}
             className="btn btn-primary"
             style={{ whiteSpace: "nowrap", height: "auto", padding: "14px 28px" }}
             suppressHydrationWarning
@@ -182,10 +161,24 @@ export default function UrlInput() {
         </form>
       )}
 
-      {/* Loading State Container */}
+      {!isPro && !loading && (
+        <p style={{ margin: 0, fontSize: 13, color: "var(--text-secondary, #9AA3B2)" }}>
+          Demo mode: this video is pre-loaded so you can see a real result instantly.{" "}
+          {session ? (
+            <button type="button" onClick={upgrade} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", color: "var(--color-forge, #FF4F1F)", font: "inherit", textDecoration: "underline" }}>
+              Upgrade to Pro
+            </button>
+          ) : (
+            <button type="button" onClick={() => signIn("google")} style={{ background: "none", border: "none", padding: 0, cursor: "pointer", color: "var(--color-forge, #FF4F1F)", font: "inherit", textDecoration: "underline" }}>
+              Sign in
+            </button>
+          )}{" "}
+          to analyze your own videos.
+        </p>
+      )}
+
       {loading && <LoadingTerminal status={status} />}
 
-      {/* Error Display */}
       {error && !loading && (
         <div className="card anim-fade-up" style={{ padding: "16px", borderColor: "rgba(255, 79, 110, 0.4)", background: "rgba(255, 79, 110, 0.05)" }}>
           <p style={{ color: "#FF4F6E", fontSize: "14px", margin: 0 }}>{error}</p>
