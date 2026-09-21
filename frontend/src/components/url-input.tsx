@@ -148,45 +148,6 @@ export default function UrlInput() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "16px", width: "100%" }}>
-      {!loading && (
-        <form onSubmit={handleSubmit} style={{ display: "flex", gap: "12px", width: "100%" }}>
-          <input
-            id="youtube-url-input"
-            type="url"
-            placeholder="Paste a YouTube URL..."
-            value={demoView ? DEMO_URL : url}
-            onChange={(e) => setUrl(e.target.value)}
-            readOnly={demoView}
-            className="custom-input"
-            style={{ flex: 1 }}
-            suppressHydrationWarning
-          />
-          <div style={{ position: "relative", display: "flex" }}>
-            {demoView && (
-              <div className="cta-hint">
-                Click to see a real result <span>↓</span>
-              </div>
-            )}
-          <button
-              id="submit-button"
-              type="submit"
-              disabled={!demoView && !url.trim()}
-              className={`btn btn-primary ${demoView ? "cta-pulse" : ""}`}
-              style={{ whiteSpace: "nowrap", height: "auto", padding: "14px 28px" }}
-              suppressHydrationWarning
-            >
-              Find Clips
-            </button>
-          </div>
-        </form>
-      )}
-
-      {isPro && !loading && (
-        <button type="button" onClick={() => setPreviewDemo(!previewDemo)} style={{ alignSelf: "flex-start", background: "none", border: "none", padding: 0, cursor: "pointer", color: "var(--color-forge, #FF4F1F)", font: "inherit", fontSize: 13, textDecoration: "underline" }}>
-          {previewDemo ? "Back to my videos (Pro)" : "Preview demo mode"}
-        </button>
-      )}
-
       {demoView && !loading && (
         <div className="card" style={{ display: "flex", gap: 16, alignItems: "center", padding: 12, textAlign: "left" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -204,6 +165,44 @@ export default function UrlInput() {
             </p>
           </div>
         </div>
+      )}
+
+      {demoView && !loading && (
+        <div className="cta-hint">
+          Click to see a real result <span>↓</span>
+        </div>
+      )}
+
+      {!loading && (
+        <form onSubmit={handleSubmit} style={{ display: "flex", gap: "12px", width: "100%" }}>
+          <input
+            id="youtube-url-input"
+            type="url"
+            placeholder="Paste a YouTube URL..."
+            value={demoView ? DEMO_URL : url}
+            onChange={(e) => setUrl(e.target.value)}
+            readOnly={demoView}
+            className="custom-input"
+            style={{ flex: 1, minWidth: 0 }}
+            suppressHydrationWarning
+          />
+          <button
+            id="submit-button"
+            type="submit"
+            disabled={!demoView && !url.trim()}
+            className={`btn btn-primary ${demoView ? "cta-pulse" : ""}`}
+            style={{ whiteSpace: "nowrap", height: "auto", padding: "14px 28px" }}
+            suppressHydrationWarning
+          >
+            Find Clips
+          </button>
+        </form>
+      )}
+
+      {isPro && !loading && (
+        <button type="button" onClick={() => setPreviewDemo(!previewDemo)} style={{ alignSelf: "flex-start", background: "none", border: "none", padding: 0, cursor: "pointer", color: "var(--color-forge, #FF4F1F)", font: "inherit", fontSize: 13, textDecoration: "underline" }}>
+          {previewDemo ? "Back to my videos (Pro)" : "Preview demo mode"}
+        </button>
       )}
 
       {!isPro && !loading && (
