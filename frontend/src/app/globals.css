@@ -1351,3 +1351,16 @@ a { color: inherit; text-decoration: none; }
 .cta-pulse { animation: cta-pulse 1.8s ease-out infinite; }
 .cta-pulse:hover { animation: none; }
 @media (prefers-reduced-motion: reduce) { .cta-pulse { animation: none; } }
+
+@keyframes arrow-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(7px); }
+}
+.cta-hint {
+  position: absolute; top: -38px; right: 0;
+  display: flex; align-items: center; gap: 6px; white-space: nowrap;
+  font-size: 13px; font-weight: 600; color: var(--color-forge, #FF4F1F);
+  pointer-events: none;
+}
+.cta-hint span { display: inline-block; font-size: 18px; animation: arrow-bounce 1s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .cta-hint span { animation: none; } }

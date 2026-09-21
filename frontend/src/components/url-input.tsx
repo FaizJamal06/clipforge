@@ -161,16 +161,23 @@ export default function UrlInput() {
             style={{ flex: 1 }}
             suppressHydrationWarning
           />
+          <div style={{ position: "relative", display: "flex" }}>
+            {demoView && (
+              <div className="cta-hint">
+                Click to see a real result <span>↓</span>
+              </div>
+            )}
           <button
-            id="submit-button"
-            type="submit"
-            disabled={!demoView && !url.trim()}
-            className={`btn btn-primary ${demoView ? "cta-pulse" : ""}`}
-            style={{ whiteSpace: "nowrap", height: "auto", padding: "14px 28px" }}
-            suppressHydrationWarning
-          >
-            Find Clips
-          </button>
+              id="submit-button"
+              type="submit"
+              disabled={!demoView && !url.trim()}
+              className={`btn btn-primary ${demoView ? "cta-pulse" : ""}`}
+              style={{ whiteSpace: "nowrap", height: "auto", padding: "14px 28px" }}
+              suppressHydrationWarning
+            >
+              Find Clips
+            </button>
+          </div>
         </form>
       )}
 
