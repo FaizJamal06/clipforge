@@ -8,6 +8,7 @@ import LoadingTerminal from "./loading-terminal";
 import { streamSSE } from "@/lib/sse";
 
 const DEMO_URL = "https://youtu.be/jEnxvZXzo0E";
+const DEMO_VIDEO_ID = "jEnxvZXzo0E";
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -22,6 +23,15 @@ export default function UrlInput() {
   const [plan, setPlan] = useState<"free" | "pro" | null>(null);
 
   const token = session?.backendToken;
+  const [demoTitle, setDemoTitle] = useState<string | null>(null);
+
+  // Public YouTube oEmbed endpoint for the video title; the thumbnail needs no fetch.
+  useEffect(() => {
+    fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(DEMO_URL)}&format=json`)
+      .then((r) => r.json())
+      .then((d) => setDemoTitle(d.title))
+      .catch(() => {});
+  }, []);
 
   // Ask the backend which plan this user is on. After a Stripe checkout
   // (?upgraded=1) the webhook may land a moment later, so poll briefly.
@@ -159,6 +169,25 @@ export default function UrlInput() {
             Find Clips
           </button>
         </form>
+      )}
+
+      {!isPro && !loading && (
+        <div className="card" style={{ display: "flex", gap: 16, alignItems: "center", padding: 12, textAlign: "left" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`https://img.youtube.com/vi/${DEMO_VIDEO_ID}/hqdefault.jpg`}
+            alt="Demo video thumbnail"
+            width={160}
+            height={90}
+            style={{ borderRadius: 8, objectFit: "cover", flexShrink: 0 }}
+          />
+          <div style={{ minWidth: 0 }}>
+            <span className="badge badge-forge">Demo video</span>
+            <p style={{ margin: "8px 0 0", fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>
+              {demoTitle ?? "Sample YouTube video"}
+            </p>
+          </div>
+        </div>
       )}
 
       {!isPro && !loading && (
