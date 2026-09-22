@@ -15,6 +15,8 @@ import jwt
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "backend"))
+import os
+os.chdir(ROOT / "backend")  # config.py's Settings reads ".env" relative to cwd
 from app.config import get_settings  # noqa: E402
 
 VIDEO = "https://youtu.be/jEnxvZXzo0E"
