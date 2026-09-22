@@ -222,3 +222,25 @@ class TestPaywall:
         from app.auth import is_pro
         assert is_pro(User(id="x", email="x@example.com", plan="pro"))
         assert not is_pro(User(id="y", email="y@example.com", plan="free"))
+
+
+class TestCorsVercelRegex:
+    """settings.cors_origin_regex must actually match Vercel preview/prod URLs
+    (Starlette's allow_origins is exact-match only, so the old
+    "https://*.vercel.app" list entry silently matched nothing)."""
+
+    def test_matches_vercel_domains(self):
+        import re
+        from app.config import get_settings
+        pattern = re.compile(get_settings().cors_origin_regex)
+        assert pattern.match("https://clipforge.vercel.app")
+        assert pattern.match("https://clipforge-eosin.vercel.app")
+        assert pattern.match("https://clipforge-git-feature-branch-faizjamal06.vercel.app")
+
+    def test_rejects_non_vercel_domains(self):
+        import re
+        from app.config import get_settings
+        pattern = re.compile(get_settings().cors_origin_regex)
+        assert not pattern.match("https://evil.com")
+        assert not pattern.match("https://vercel.app.evil.com")
+        assert not pattern.match("http://clipforge.vercel.app")  # not https

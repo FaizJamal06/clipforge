@@ -66,8 +66,12 @@ class Settings(BaseSettings):
         "http://localhost:3000",
         "https://clipforge.vercel.app",
         "https://clipforge-eosin.vercel.app",
-        "https://*.vercel.app",
     ]
+    # Starlette's CORSMiddleware does exact string matching on allow_origins —
+    # "https://*.vercel.app" in the list above never actually matched anything
+    # (Vercel preview URLs like clipforge-git-<branch>-<user>.vercel.app were
+    # silently blocked). This regex is what actually makes the wildcard work.
+    cors_origin_regex: str = r"^https://([a-z0-9-]+\.)*vercel\.app$"
 
     # YouTube Settings
     youtube_api_key: str | None = Field(default=None, description="YouTube Data API v3 Key")
