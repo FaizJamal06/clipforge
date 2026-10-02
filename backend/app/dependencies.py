@@ -47,7 +47,7 @@ def get_llm_client() -> BaseChatModel:
         google_api_key=settings.llm_api_key,
         max_retries=settings.llm_max_retries,
         temperature=0.3,  # Low temperature for consistent, focused outputs
-        max_output_tokens=4000,
+        max_output_tokens=16384,  # deep editing plans (12-18 segments x 7 fields) overflow 4k
     )
 
     logger.info(f"LLM client initialized: model={settings.llm_model}")

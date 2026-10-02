@@ -24,6 +24,9 @@ class EditingSegment(BaseModel):
     broll_idea: str = Field(default="", description="B-roll suggestion for this segment.")
     caption_text: str = Field(default="", description="Caption/subtitle text for this segment.")
     editing_note: str = Field(default="", description="Pacing or editing instruction.")
+    shot: str = Field(default="", description="Camera framing / movement (e.g. 'tight close-up, slow push-in').")
+    sound: str = Field(default="", description="Sound design for this beat: SFX, music change, or silence.")
+    transition: str = Field(default="", description="How this segment cuts into the next (e.g. 'whip pan', 'hard cut on beat').")
 
 
 class ClipEditingPlan(BaseModel):
@@ -35,6 +38,10 @@ class ClipEditingPlan(BaseModel):
     caption_style: str = Field(description="Overall caption style recommendation.")
     pacing_notes: str | None = Field(default=None, description="General pacing and rhythm instructions.")
     call_to_action: str | None = Field(default=None, description="Recommended CTA for the end of the clip.")
+    music_direction: str = Field(default="", description="Track mood, BPM range and how the music arcs across the clip.")
+    color_grade: str = Field(default="", description="Color grade / look for the clip.")
+    thumbnail_idea: str = Field(default="", description="Thumbnail / cover frame concept with on-image text.")
+    hashtags: list[str] = Field(default_factory=list, description="5-8 relevant hashtags, without the # sign.")
 
 
 class EditingPlanOutput(BaseModel):
@@ -74,14 +81,24 @@ Use cinematic storytelling, pacing, and emotional visuals.
 For each clip, populate the structured output with:
 1. TITLE SUGGESTION: A compelling, scroll-stopping title (max 60 characters).
 2. HOOK STRATEGY: A highly specific visual and auditory strategy to emphasize the opening 3-5 seconds and prevent scroll-past.
-3. SEGMENT TIMELINE: Break the clip down into highly granular segments. For every segment, provide:
-   - Visual type (Speaker / Cinematic B-roll / Mixed)
-   - B-roll ideas (specific cinematic scene ideas)
-   - Caption text (short, viral style)
-   - Editing notes (zoom, cut, pacing, mood)
+3. SEGMENT TIMELINE: Break the clip into granular beats of 2-5 seconds each (a 50-60s clip should
+   have roughly 12-18 segments). For EVERY segment, fill in ALL of:
+   - Visual type (talking_head / broll / text_overlay / mixed)
+   - Shot: framing and camera movement (close-up, wide, push-in, handheld, split-screen...)
+   - B-roll ideas (specific, filmable cinematic scenes; empty only for pure talking_head beats)
+   - Caption text (the exact short on-screen caption, viral style)
+   - Sound: SFX, music change, riser, bass drop, or deliberate silence
+   - Transition into the next segment (hard cut, whip pan, zoom transition, match cut...)
+   - Editing notes (zooms, speed ramps, emphasis, mood)
 4. CAPTION STYLE: The subtitle design recommendation. Captions should be short, bold, and optimized for virality.
 5. PACING NOTES: Include jump cuts, punch zooms, speed ramps, dramatic pauses, music tone, and emotional pacing.
 6. CALL TO ACTION: A specific, creative CTA.
+7. MUSIC DIRECTION: Track mood, BPM range, and how the music builds and resolves across the clip.
+8. COLOR GRADE: The look (e.g. warm teal-orange, desaturated gritty) and where it shifts.
+9. THUMBNAIL IDEA: The cover frame and its on-image text.
+10. HASHTAGS: 5-8 relevant hashtags.
+
+Never leave a field empty. Be concrete enough that an editor could execute the plan without asking questions.
 
 --------------------------------------------------
 

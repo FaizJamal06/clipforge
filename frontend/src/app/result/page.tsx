@@ -13,6 +13,10 @@ interface EditingSegment {
   broll_idea: string;
   caption_text: string;
   editing_note: string;
+  // Optional: results cached before these fields existed won't have them.
+  shot?: string;
+  sound?: string;
+  transition?: string;
 }
 interface EditingPlan {
   title_suggestion: string;
@@ -21,6 +25,10 @@ interface EditingPlan {
   caption_style: string;
   pacing_notes: string;
   call_to_action: string;
+  music_direction?: string;
+  color_grade?: string;
+  thumbnail_idea?: string;
+  hashtags?: string[];
 }
 interface ClipResult {
   clip_text: string;
@@ -118,6 +126,18 @@ function BPSection({ icon, label, accent, children }: {
   );
 }
 
+/* ─── Labeled detail line inside a timeline row ─── */
+function SegDetail({ tag, color, text }: { tag: string; color: string; text?: string }) {
+  if (!text) return null;
+  return (
+    <div style={{ fontSize: 12, color: "#9AA3B8", lineHeight: 1.5 }}>
+      <span style={{ fontSize: 9, fontFamily: "var(--font-mono)", color,
+        letterSpacing: "0.08em", marginRight: 6, fontWeight: 700 }}>{tag}</span>
+      {text}
+    </div>
+  );
+}
+
 /* ─── Timeline row ─── */
 function SegRow({ seg, i }: { seg: EditingSegment; i: number }) {
   const vt = getVtype(seg.visual_type);
@@ -149,13 +169,10 @@ function SegRow({ seg, i }: { seg: EditingSegment; i: number }) {
             "{seg.caption_text}"
           </div>
         )}
-        {seg.broll_idea && (
-          <div style={{ fontSize: 12, color: "#9AA3B8", lineHeight: 1.5 }}>
-            <span style={{ fontSize: 9, fontFamily: "var(--font-mono)", color: "#00C4A7",
-              letterSpacing: "0.08em", marginRight: 6, fontWeight: 700 }}>B-ROLL</span>
-            {seg.broll_idea}
-          </div>
-        )}
+        <SegDetail tag="SHOT" color="#9AA3B8" text={seg.shot} />
+        <SegDetail tag="B-ROLL" color="#00C4A7" text={seg.broll_idea} />
+        <SegDetail tag="SOUND" color="#B48CFF" text={seg.sound} />
+        <SegDetail tag="CUT →" color="#FF7A50" text={seg.transition} />
         {seg.editing_note && (
           <div style={{ fontSize: 11, color: "#4E5568", fontStyle: "italic",
             borderLeft: "2px solid #1E2230", paddingLeft: 8 }}>
@@ -328,6 +345,22 @@ function ClipCard({ clip, index, videoId }: { clip: ClipResult; index: number; v
                 </BPSection>
               )}
 
+              {plan.music_direction && (
+                <BPSection icon="🎵" label="Music Direction" accent="#B48CFF">
+                  <p style={{ fontSize: 13, color: "#9AA3B8", lineHeight: 1.7, margin: 0 }}>
+                    {plan.music_direction}
+                  </p>
+                </BPSection>
+              )}
+
+              {plan.color_grade && (
+                <BPSection icon="🎨" label="Color Grade" accent="#FF7A50">
+                  <p style={{ fontSize: 13, color: "#9AA3B8", lineHeight: 1.7, margin: 0 }}>
+                    {plan.color_grade}
+                  </p>
+                </BPSection>
+              )}
+
               {/* CTA */}
               {plan.call_to_action && (
                 <BPSection icon="📣" label="Call to Action" accent="#00C4A7">
@@ -335,6 +368,27 @@ function ClipCard({ clip, index, videoId }: { clip: ClipResult; index: number; v
                     lineHeight: 1.5, margin: 0 }}>
                     {plan.call_to_action}
                   </p>
+                </BPSection>
+              )}
+
+              {plan.thumbnail_idea && (
+                <BPSection icon="🖼️" label="Thumbnail" accent="#FFD60A">
+                  <p style={{ fontSize: 13, color: "#9AA3B8", lineHeight: 1.7, margin: 0 }}>
+                    {plan.thumbnail_idea}
+                  </p>
+                </BPSection>
+              )}
+
+              {plan.hashtags && plan.hashtags.length > 0 && (
+                <BPSection icon="#️⃣" label="Hashtags" accent="#00C4A7">
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                    {plan.hashtags.map((h) => (
+                      <span key={h} style={{ fontSize: 12, fontFamily: "var(--font-mono)", color: "#00C4A7",
+                        background: "#00C4A714", padding: "4px 10px", borderRadius: 999 }}>
+                        #{h.replace(/^#/, "")}
+                      </span>
+                    ))}
+                  </div>
                 </BPSection>
               )}
             </>

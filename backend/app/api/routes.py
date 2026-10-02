@@ -10,7 +10,6 @@ import logging
 import urllib.parse
 import json
 import asyncio
-from pathlib import Path
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
@@ -49,6 +48,9 @@ class EditingSegmentResult(BaseModel):
     broll_idea: str = Field(default="", description="B-roll suggestion for this segment.")
     caption_text: str = Field(default="", description="Caption/subtitle text for this segment.")
     editing_note: str = Field(default="", description="Pacing or editing instruction.")
+    shot: str = Field(default="", description="Camera framing / movement.")
+    sound: str = Field(default="", description="Sound design for this beat.")
+    transition: str = Field(default="", description="Transition into the next segment.")
 
 
 class EditingPlanResult(BaseModel):
@@ -59,6 +61,10 @@ class EditingPlanResult(BaseModel):
     caption_style: str = Field(default="", description="Overall caption style recommendation.")
     pacing_notes: str = Field(default="", description="General pacing and rhythm instructions.")
     call_to_action: str = Field(default="", description="Recommended CTA for the end of the clip.")
+    music_direction: str = Field(default="", description="Music mood, BPM and arc.")
+    color_grade: str = Field(default="", description="Color grade / look.")
+    thumbnail_idea: str = Field(default="", description="Thumbnail concept.")
+    hashtags: list[str] = Field(default_factory=list, description="Suggested hashtags.")
 
 
 class ClipResult(BaseModel):
@@ -115,6 +121,9 @@ def format_clips_from_state(final_state: dict) -> list[ClipResult]:
                 broll_idea=seg.get("broll_idea", ""),
                 caption_text=seg.get("caption_text", ""),
                 editing_note=seg.get("editing_note", ""),
+                shot=seg.get("shot", "") or "",
+                sound=seg.get("sound", "") or "",
+                transition=seg.get("transition", "") or "",
             )
             for seg in raw_segments
         ]
@@ -126,6 +135,10 @@ def format_clips_from_state(final_state: dict) -> list[ClipResult]:
             caption_style=matching_plan_dict.get("caption_style", ""),
             pacing_notes=matching_plan_dict.get("pacing_notes", "") or "",
             call_to_action=matching_plan_dict.get("call_to_action", "") or "",
+            music_direction=matching_plan_dict.get("music_direction", "") or "",
+            color_grade=matching_plan_dict.get("color_grade", "") or "",
+            thumbnail_idea=matching_plan_dict.get("thumbnail_idea", "") or "",
+            hashtags=matching_plan_dict.get("hashtags") or [],
         )
 
         clips.append(ClipResult(
@@ -143,14 +156,8 @@ def format_clips_from_state(final_state: dict) -> list[ClipResult]:
 
 
 # ----- Endpoints ----- #
-
-DEMO_PATH = Path(__file__).resolve().parent.parent / "demo" / "sample_result.json"
-
-
-@router.get("/demo", response_model=ProcessResponse)
-async def demo_result():
-    """Public, pre-generated sample result. Never calls the LLM, so it costs nothing."""
-    return json.loads(DEMO_PATH.read_text(encoding="utf-8"))
+# The public demo result is bundled into the frontend (frontend/src/data/demo.json),
+# so it never waits on this server's free-tier cold start.
 
 
 @router.get("/me")

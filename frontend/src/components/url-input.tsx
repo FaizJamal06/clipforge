@@ -6,6 +6,7 @@ import { useSession, signIn } from "next-auth/react";
 
 import LoadingTerminal from "./loading-terminal";
 import { streamSSE } from "@/lib/sse";
+import demoData from "@/data/demo.json";
 
 const DEMO_URL = "https://youtu.be/jEnxvZXzo0E";
 const DEMO_VIDEO_ID = "jEnxvZXzo0E";
@@ -65,20 +66,13 @@ export default function UrlInput() {
     };
   }, [token]);
 
-  const openDemo = async () => {
-    setError(null);
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/v1/demo`);
-      if (!res.ok) throw new Error("Demo is unavailable right now.");
-      const data = await res.json();
-      sessionStorage.setItem("clipforge_latest_result", JSON.stringify(data));
-      sessionStorage.setItem("clipforge_latest_url", data.youtube_url);
-      sessionStorage.setItem("clipforge_latest_offset", "0");
-      sessionStorage.setItem("clipforge_demo", "1");
-      router.push("/result");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Demo is unavailable right now.");
-    }
+  // The demo result is bundled into the page, so this never waits on the backend.
+  const openDemo = () => {
+    sessionStorage.setItem("clipforge_latest_result", JSON.stringify(demoData));
+    sessionStorage.setItem("clipforge_latest_url", demoData.youtube_url);
+    sessionStorage.setItem("clipforge_latest_offset", "0");
+    sessionStorage.setItem("clipforge_demo", "1");
+    router.push("/result");
   };
 
   const upgrade = async () => {

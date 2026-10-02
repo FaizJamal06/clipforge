@@ -1,0 +1,322 @@
+{
+  "status": "completed",
+  "youtube_url": "https://youtu.be/jEnxvZXzo0E",
+  "video_id": "jEnxvZXzo0E",
+  "clips": [
+    {
+      "clip_text": "How many of you think hard work leads to success? It's an attribution thing, right? Like we've heard it so much. Hard work leads to success, right? Here's what I think. I think it's one of the factors, but definitely not the only factor. Otherwise, laborers will be very wealthy. Anyone doing manual effort, the oil rigging people, there's so many people doing hard work in the world. Clearly, hard work is not that correlated with financially financial success. But if you look at actual people who are successful, a lot of them also work hard. So it might be one of the factors definitely not the only factor. So whenever somebody sometimes your parents say right if you work very very hard you'll become very successful. I don't think that's true. And I think it's bad advice to give people. It should be like hard work is one of the conditions but there's other things that you're missing that other things you need to attribute to that is responsible for your success.",
+      "start_time": 429.0,
+      "end_time": 470.0,
+      "duration": 41.0,
+      "virality_score": 10.0,
+      "virality_reasoning": "This clip presents a highly contrarian and universally resonant take on the common belief that hard work alone leads to success. It uses relatable examples to challenge this notion, creating an emotional peak of surprise and a strong curiosity gap.",
+      "hook": "How many of you think hard work leads to success? It's an attribution thing, right? Like we've heard it so much. Hard work leads to success, right? Here's what I think.",
+      "payoff": "It should be like hard work is one of the conditions but there's other things that you're missing that other things you need to attribute to that is responsible for your success.",
+      "editing_plan": {
+        "title_suggestion": "Hard Work DOESN'T Guarantee Success?! 🤯",
+        "hook_strategy": "Start with a tight close-up on the speaker's face, slightly off-center, with a subtle, slow push-in. A dramatic, questioning sound effect (like a subtle 'whoosh' or 'ding') on the word 'success' at 0:02. The first caption 'Hard work leads to success?' appears instantly, bold and central, creating an immediate curiosity gap.",
+        "segments": [
+          {
+            "timestamp": "0:00-0:03",
+            "visual_type": "talking_head",
+            "broll_idea": "",
+            "caption_text": "Hard work leads to success?",
+            "editing_note": "Tight close-up, slow push-in on speaker. Emphasize 'success' with a slight zoom.",
+            "shot": "Tight close-up, slow push-in",
+            "sound": "Subtle 'whoosh' SFX on 'success'",
+            "transition": "Hard cut"
+          },
+          {
+            "timestamp": "0:03-0:06",
+            "visual_type": "talking_head",
+            "broll_idea": "",
+            "caption_text": "We've heard it so much.",
+            "editing_note": "Slightly wider shot, speaker looking thoughtful. Quick jump cut to next segment.",
+            "shot": "Medium close-up",
+            "sound": "Music builds slightly, subtle underscore",
+            "transition": "Jump cut"
+          },
+          {
+            "timestamp": "0:06-0:09",
+            "visual_type": "talking_head",
+            "broll_idea": "",
+            "caption_text": "Here's what I think...",
+            "editing_note": "Close-up, speaker leans in slightly, conspiratorial tone. Quick punch zoom on 'I think'.",
+            "shot": "Close-up, slight lean-in",
+            "sound": "Music drops slightly, then a subtle 'ding' SFX",
+            "transition": "Hard cut"
+          },
+          {
+            "timestamp": "0:09-0:12",
+            "visual_type": "talking_head",
+            "broll_idea": "",
+            "caption_text": "It's one factor, NOT the only one.",
+            "editing_note": "Medium close-up, firm expression. Text 'NOT' flashes larger.",
+            "shot": "Medium close-up",
+            "sound": "Music becomes more assertive",
+            "transition": "Hard cut to B-roll"
+          },
+          {
+            "timestamp": "0:12-0:15",
+            "visual_type": "broll",
+            "broll_idea": "Cinematic shot of construction workers on a dusty site, sweat on their brow, lifting heavy materials. Desaturated, gritty look.",
+            "caption_text": "Otherwise, laborers would be wealthy.",
+            "editing_note": "Slow motion B-roll, then speed ramp into next shot.",
+            "shot": "Wide shot, slow motion",
+            "sound": "Industrial SFX (e.g., hammer clang, distant machinery), music slightly tense",
+            "transition": "Speed ramp zoom transition"
+          },
+          {
+            "timestamp": "0:15-0:18",
+            "visual_type": "broll",
+            "broll_idea": "Dramatic shot of an oil rig worker, silhouetted against a harsh sky, performing strenuous manual labor.",
+            "caption_text": "Oil rigging people...",
+            "editing_note": "Quick cut, handheld feel, focus on effort. Quick speed ramp.",
+            "shot": "Medium close-up, handheld",
+            "sound": "Wind SFX, metallic creaks, music maintains tension",
+            "transition": "Whip pan"
+          },
+          {
+            "timestamp": "0:18-0:21",
+            "visual_type": "broll",
+            "broll_idea": "Montage of diverse people doing physically demanding jobs (e.g., farmer, factory worker, cleaner) in quick cuts.",
+            "caption_text": "So many people doing hard work.",
+            "editing_note": "Rapid cuts, each shot 1-1.5s. Emphasize variety of hard work.",
+            "shot": "Montage of various close-ups/medium shots",
+            "sound": "Quick SFX transitions (e.g., 'whoosh', 'thump'), music builds slightly",
+            "transition": "Hard cut"
+          },
+          {
+            "timestamp": "0:21-0:24",
+            "visual_type": "broll",
+            "broll_idea": "Overhead shot of a bustling city street, people rushing, then a slow zoom out to show the vastness of the city, symbolizing global effort.",
+            "caption_text": "Hard work ≠ financial success.",
+            "editing_note": "Slow zoom out, text '≠' appears with a glitch effect.",
+            "shot": "Overhead shot, slow zoom out",
+            "sound": "City ambient sounds, music becomes more reflective",
+            "transition": "Hard cut back to speaker"
+          },
+          {
+            "timestamp": "0:24-0:28",
+            "visual_type": "talking_head",
+            "broll_idea": "",
+            "caption_text": "Successful people also work hard.",
+            "editing_note": "Return to speaker, medium shot, slightly softer lighting. Emphasize 'also'.",
+            "shot": "Medium shot",
+            "sound": "Music softens slightly, thoughtful tone",
+            "transition": "Jump cut"
+          },
+          {
+            "timestamp": "0:28-0:31",
+            "visual_type": "talking_head",
+            "broll_idea": "",
+            "caption_text": "Parents say 'work hard, be successful'.",
+            "editing_note": "Close-up, speaker looks directly at camera, slightly concerned expression. Text appears quickly.",
+            "shot": "Close-up",
+            "sound": "Music becomes slightly more serious",
+            "transition": "Hard cut"
+          },
+          {
+            "timestamp": "0:31-0:34",
+            "visual_type": "talking_head",
+            "broll_idea": "",
+            "caption_text": "I don't think that's true. Bad advice.",
+            "editing_note": "Punch zoom on 'bad advice'. Speaker shakes head slightly.",
+            "shot": "Tight close-up, punch zoom",
+            "sound": "Sharp 'thud' SFX on 'bad advice', music becomes slightly dissonant",
+            "transition": "Hard cut"
+          },
+          {
+            "timestamp": "0:34-0:37",
+            "visual_type": "talking_head",
+            "broll_idea": "",
+            "caption_text": "Hard work is a condition...",
+            "editing_note": "Medium shot, speaker gestures with hands, explaining. Text appears clearly.",
+            "shot": "Medium shot",
+            "sound": "Music shifts to a more hopeful, resolving tone",
+            "transition": "Hard cut to B-roll"
+          },
+          {
+            "timestamp": "0:37-0:41",
+            "visual_type": "broll",
+            "broll_idea": "Abstract B-roll: A complex gears mechanism slowly turning, then a single, crucial gear clicks into place, causing a larger, more intricate system to activate and light up, symbolizing other 'factors' aligning.",
+            "caption_text": "...but other things are missing.",
+            "editing_note": "Slow, deliberate B-roll. Text 'missing' fades in dramatically. Music swells to a thoughtful, empowering peak.",
+            "shot": "Macro shot, slow push-in",
+            "sound": "Clockwork SFX, subtle 'click' on gear, music swells and resolves",
+            "transition": "Fade to black"
+          }
+        ],
+        "caption_style": "Bold, sans-serif font (e.g., Montserrat, Poppins), white text with a thin black outline or shadow for readability. Captions appear phrase-by-phrase or word-by-word, dynamically scaling slightly on emphasis. Key words (e.g., 'NOT', 'BAD ADVICE') can flash larger or change color briefly.",
+        "pacing_notes": "The pacing starts with a curious, slightly slow build, then accelerates rapidly during the B-roll examples (0:12-0:24) with quick cuts and speed ramps to maintain high energy. It slows down for the speaker's direct insights and punchlines, using punch zooms for emphasis (e.g., 'bad advice'). The final segment uses a slower, more deliberate pace to convey the concluding thought.",
+        "call_to_action": "What's YOUR secret to success? Share your thoughts below! 👇",
+        "music_direction": "Start with a mysterious, slightly tense, low-BPM (80-100) track with a subtle synth pad. Build intensity with a light percussion beat and a rising melody during the B-roll examples (110-130 BPM). For the 'bad advice' segment, introduce a slight dissonance or a dramatic pause. Resolve to an uplifting, thoughtful, and empowering track (90-110 BPM) for the final insight, ending with a sustained, hopeful chord.",
+        "color_grade": "A slightly desaturated, cinematic look with cool undertones for the talking head, shifting to a grittier, more contrasty, and slightly desaturated look for the B-roll examples (e.g., construction, oil rig) to emphasize struggle. Returns to a clean, slightly warmer, and more optimistic grade for the final resolution.",
+        "thumbnail_idea": "Speaker with a thoughtful, slightly concerned expression, looking directly at the camera. On-image text: 'Hard Work ≠ Success?' with a bold, striking font.",
+        "hashtags": [
+          "HardWork",
+          "SuccessMindset",
+          "LifeLessons",
+          "Motivation",
+          "CareerAdvice",
+          "Entrepreneurship",
+          "PodcastClips",
+          "MindsetShift"
+        ]
+      }
+    },
+    {
+      "clip_text": "And a good example of this is Nike. You all know Nike. Do you know that Nike lost $25 billion in one day in market valuation just by trying to make everything data driven? Nike invested billions into something that was less effective but easier to measure versus something that was more effective but less easy to measure. Do you know Nike changed as a brand earlier they used to do these you know they used to get the best athletes and make them you know show they used to celebrate running they used to celebrate sports but they switched and they said no we'll go very tactical we'll go very measured and obviously it became a less aspirational brand the minute you make everything measurable and you're trying to sell sell one specific shoa unit audiences can see that unit it becomes there's no story there's no connect and half the things we buy is because of story and act. So, you lose that and then they did that because it's easier to measure and they lost so much money. And I'll tell you one of the Nike I think one of the you know leadership team members put this on out on LinkedIn. What happened in 2020? Well, the brand team shifted from brand marketing to digital marketing and from brand enhancing to sales activation.",
+      "start_time": 140.0,
+      "end_time": 190.0,
+      "duration": 50.0,
+      "virality_score": 9.0,
+      "virality_reasoning": "This clip features a dramatic revelation about a well-known brand (Nike) losing a massive amount of money due to a specific, controversial marketing strategy. It challenges the common belief that 'data-driven' is always superior, creating a strong curiosity gap and a contrarian take.",
+      "hook": "Do you know that Nike lost $25 billion in one day in market valuation just by trying to make everything data driven?",
+      "payoff": "What happened in 2020? Well, the brand team shifted from brand marketing to digital marketing and from brand enhancing to sales activation.",
+      "editing_plan": {
+        "title_suggestion": "Nike's $25 Billion Mistake: The Data-Driven Disaster",
+        "hook_strategy": "Start with a tight close-up of the speaker, a dramatic slow push-in, and a sudden bass drop/riser sound effect as \"$25 BILLION\" appears on screen in bold, red text. The speaker's expression should be serious and slightly incredulous, creating immediate curiosity.",
+        "segments": [
+          {
+            "timestamp": "0:00-0:02",
+            "visual_type": "talking_head",
+            "broll_idea": "",
+            "caption_text": "NIKE. You know them.",
+            "editing_note": "Quick intro, establish speaker.",
+            "shot": "Medium shot, slight pan to speaker.",
+            "sound": "Intriguing, light synth music starts.",
+            "transition": "Hard cut"
+          },
+          {
+            "timestamp": "0:02-0:06",
+            "visual_type": "talking_head",
+            "broll_idea": "",
+            "caption_text": "Nike LOST $25 BILLION?",
+            "editing_note": "Punch zoom on \"lost $25 billion\" for emphasis.",
+            "shot": "Tight close-up, slow push-in.",
+            "sound": "Dramatic riser, low synth bass hit.",
+            "transition": "Hard cut"
+          },
+          {
+            "timestamp": "0:06-0:10",
+            "visual_type": "broll",
+            "broll_idea": "Abstract data visualizations, glowing lines, complex graphs on multiple screens, fast scroll.",
+            "caption_text": "By going DATA-DRIVEN?",
+            "editing_note": "Fast-paced, almost overwhelming visual. Desaturated color grade.",
+            "shot": "Overhead shot of a busy data dashboard on multiple screens, fast scroll.",
+            "sound": "Glitchy digital SFX, music becomes slightly tense.",
+            "transition": "Quick zoom transition"
+          },
+          {
+            "timestamp": "0:10-0:14",
+            "visual_type": "mixed",
+            "broll_idea": "Split screen: Left - sterile data charts, stock market graphs, spreadsheets. Right - blurred shot of a runner's legs, abstract art representing emotion/story.",
+            "caption_text": "EASIER to measure vs. EFFECTIVE",
+            "editing_note": "Visual contrast, quick cuts between sides of the split screen.",
+            "shot": "Split screen: Left - sterile data charts, Right - dynamic athlete in motion (blurred).",
+            "sound": "Subtle \"whoosh\" for split, contrasting tones.",
+            "transition": "Hard cut"
+          },
+          {
+            "timestamp": "0:14-0:18",
+            "visual_type": "broll",
+            "broll_idea": "Archival footage of iconic Nike athletes (Michael Jordan dunking, Tiger Woods golfing), \"Just Do It\" campaigns, people joyfully running/playing sports.",
+            "caption_text": "Nike: Celebrating SPORTS",
+            "editing_note": "Fast-paced, inspiring montage. Vibrant, saturated color grade.",
+            "shot": "Dynamic montage, quick cuts.",
+            "sound": "Uplifting, epic music swells.",
+            "transition": "Whip pan"
+          },
+          {
+            "timestamp": "0:18-0:22",
+            "visual_type": "broll",
+            "broll_idea": "Clean, almost clinical shots of shoes on a pedestal, generic e-commerce interface, a person looking at a phone with a shopping app.",
+            "caption_text": "They went TACTICAL. MEASURED.",
+            "editing_note": "Desaturated, cool look. Emphasize the shift in mood.",
+            "shot": "Slow push-in on a sterile product shot of a shoe, then a shot of a person looking at a phone with a shopping app.",
+            "sound": "Music shifts to a more sterile, slightly dissonant tone. SFX: \"click\" sound.",
+            "transition": "Hard cut"
+          },
+          {
+            "timestamp": "0:22-0:26",
+            "visual_type": "broll",
+            "broll_idea": "Close-up on a barcode scanner, a single shoe box, a person scrolling past an ad with a bored expression.",
+            "caption_text": "No STORY. No CONNECT.",
+            "editing_note": "Emphasize the disconnect and lack of engagement.",
+            "shot": "Close-up on a barcode scanner, then a person looking bored.",
+            "sound": "Music fades slightly, hollow echo. SFX: \"beep\" of scanner.",
+            "transition": "Hard cut"
+          },
+          {
+            "timestamp": "0:26-0:30",
+            "visual_type": "talking_head",
+            "broll_idea": "",
+            "caption_text": "We buy for STORY & EMOTION",
+            "editing_note": "Direct address to camera, thoughtful expression.",
+            "shot": "Medium shot, slight head tilt, thoughtful.",
+            "sound": "Music picks up slightly, emphasizing the point.",
+            "transition": "Hard cut"
+          },
+          {
+            "timestamp": "0:30-0:34",
+            "visual_type": "talking_head",
+            "broll_idea": "",
+            "caption_text": "What happened in 2020?",
+            "editing_note": "Build anticipation, intense look.",
+            "shot": "Close-up, intense look, slight push-in.",
+            "sound": "Music builds with a suspenseful riser, light \"whoosh\" SFX.",
+            "transition": "Zoom out transition"
+          },
+          {
+            "timestamp": "0:34-0:38",
+            "visual_type": "text_overlay",
+            "broll_idea": "Blurred background of a social media feed or ad platform, digital interface elements.",
+            "caption_text": "BRAND MARKETING -> DIGITAL MARKETING",
+            "editing_note": "Bold text animation, impactful visual.",
+            "shot": "Dynamic text animation over a blurred background of a digital interface.",
+            "sound": "Dramatic bass drop on \"shifted,\" then a serious, reflective music.",
+            "transition": "Hard cut"
+          },
+          {
+            "timestamp": "0:38-0:42",
+            "visual_type": "text_overlay",
+            "broll_idea": "Blurred background of a shopping cart icon, \"buy now\" button, sales funnel graphics.",
+            "caption_text": "BRAND ENHANCING -> SALES ACTIVATION",
+            "editing_note": "Reinforce the shift, subtle cash register SFX.",
+            "shot": "Dynamic text animation over a blurred background of a sales funnel or e-commerce checkout.",
+            "sound": "Sustained serious music, subtle cash register SFX.",
+            "transition": "Hard cut"
+          },
+          {
+            "timestamp": "0:42-0:46",
+            "visual_type": "talking_head",
+            "broll_idea": "",
+            "caption_text": "The COST of 'easier to measure'",
+            "editing_note": "Concluding thought, slightly somber expression.",
+            "shot": "Medium shot, slightly somber expression.",
+            "sound": "Music resolves with a final, impactful chord.",
+            "transition": "Fade to black"
+          }
+        ],
+        "caption_style": "Bold, sans-serif font (e.g., Montserrat, Poppins), white text with a black outline/shadow for readability. Animated word-by-word or phrase-by-phrase, max 2-3 words per line.",
+        "pacing_notes": "Rapid jump cuts on the speaker for emphasis, especially during the hook and key revelations. Quick, dynamic cuts for B-roll montages. Use speed ramps for transitions between contrasting B-roll scenes (e.g., inspiring athletes to sterile data). Dramatic pauses in music before key reveals. Music builds and drops to match emotional arc.",
+        "call_to_action": "What do YOU think? Did Nike make the right call? Comment below and share your thoughts!",
+        "music_direction": "Starts with an intriguing, slightly mysterious synth track (BPM 100-120). Builds tension with a dramatic riser during the hook. Shifts to an uplifting, epic orchestral feel (BPM 130-140) for the \"celebrating sports\" B-roll. Transitions to a sterile, slightly dissonant electronic track (BPM 90-110) for the \"tactical/data-driven\" part. Ends with a serious, reflective, impactful synth chord.",
+        "color_grade": "Starts with a natural, slightly warm grade for the speaker. Shifts to a vibrant, slightly saturated look for the \"celebrating sports\" B-roll. Transitions to a desaturated, cool, almost clinical look for the \"tactical/data-driven\" B-roll. Returns to a balanced, slightly muted grade for the final speaker segments.",
+        "thumbnail_idea": "A split image. Left side: Nike \"swoosh\" logo with a large red \"$ -25B\" overlay. Right side: Speaker with a concerned/surprised expression. Text on image: \"NIKE'S $25 BILLION MISTAKE\".",
+        "hashtags": [
+          "Nike",
+          "MarketingStrategy",
+          "BrandBuilding",
+          "DataDriven",
+          "BusinessMistakes",
+          "ViralMarketing",
+          "DigitalMarketing",
+          "Storytelling"
+        ]
+      }
+    }
+  ],
+  "errors": []
+}

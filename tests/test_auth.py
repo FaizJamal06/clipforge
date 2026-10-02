@@ -203,12 +203,17 @@ class TestPaywall:
             )
         assert res.status_code == 402
 
-    @pytest.mark.asyncio
-    async def test_demo_is_public_and_has_clips(self, db_session):
-        async with self._client() as c:
-            res = await c.get("/api/v1/demo")
-        assert res.status_code == 200
-        assert len(res.json()["clips"]) > 0
+    def test_bundled_demo_is_valid_and_complete(self):
+        """The frontend's demo data must parse as a ProcessResponse with fully populated clips."""
+        import json
+        from pathlib import Path
+        from app.api.routes import ProcessResponse
+
+        path = Path(__file__).resolve().parent.parent / "frontend" / "src" / "data" / "demo.json"
+        demo = ProcessResponse(**json.loads(path.read_text(encoding="utf-8")))
+        assert demo.clips
+        for clip in demo.clips:
+            assert clip.end_time > clip.start_time and clip.hook and clip.editing_plan.segments
 
     @pytest.mark.asyncio
     async def test_me_reports_free_plan(self, db_session):
