@@ -1,0 +1,16 @@
+name: Keep backend warm
+
+# Render's free tier spins the service down after 15 minutes of no requests,
+# which then costs the next visitor a 50s+ cold start. Pinging /health on a
+# schedule counts as activity and resets that timer, so it never sleeps.
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping health endpoint
+        run: curl --fail --max-time 70 https://clipforge-0qw4.onrender.com/health
